@@ -20,22 +20,99 @@ echo "=== Harness Engineering Setup ==="
 echo "Repo:   $REPO_ROOT"
 echo "Target: $SKILLS_TARGET"
 
-# --- 1. Validar dependências ------------------------------------------------
+# --- 1. Instalar dependências -----------------------------------------------
 echo ""
-echo "[1/5] Validando dependências..."
-missing=()
-command -v git >/dev/null 2>&1 || missing+=("git")
-command -v gh  >/dev/null 2>&1 || missing+=("gh (GitHub CLI)")
-if [[ "$SKIP_MCP" != "1" ]]; then
-    command -v python3 >/dev/null 2>&1 || missing+=("python 3.9+")
-    command -v uv      >/dev/null 2>&1 || missing+=("uv (Astral)")
+echo "[1/5] Instalando dependências..."
+
+# Detecta OS
+_OS="unknown"
+if [[ "$(uname)" == "Darwin" ]]; then
+    _OS="mac"
+elif [[ "$(uname)" == "Linux" ]]; then
+    _OS="linux"
 fi
-if [[ ${#missing[@]} -gt 0 ]]; then
-    echo "  Faltam: ${missing[*]}"
-    echo "  Rode ./scripts/doctor.sh para instruções."
+
+# apt-get update uma vez só se precisar instalar algo
+_APT_UPDATED=0
+apt_install() {
+    if [[ "$_APT_UPDATED" == "0" ]]; then
+        sudo apt-get update -q
+        _APT_UPDATED=1
+    fi
+    sudo apt-get install -y "$@"
+}
+
+# git
+if ! command -v git >/dev/null 2>&1; then
+    echo "  Instalando git..."
+    if [[ "$_OS" == "mac" ]]; then brew install git
+    else apt_install git; fi
+else
+    echo "  git $(git --version | awk '{print $3}') — ok"
+fi
+
+# jq (necessário para check-harness.sh)
+if ! command -v jq >/dev/null 2>&1; then
+    echo "  Instalando jq..."
+    if [[ "$_OS" == "mac" ]]; then brew install jq
+    else apt_install jq; fi
+else
+    echo "  jq $(jq --version) — ok"
+fi
+
+# gh (GitHub CLI)
+if ! command -v gh >/dev/null 2>&1; then
+    echo "  Instalando gh (GitHub CLI)..."
+    if [[ "$_OS" == "mac" ]]; then
+        brew install gh
+    else
+        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+            | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg 2>/dev/null
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+            | sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null
+        _APT_UPDATED=0  # forçar re-update após novo source
+        apt_install gh
+    fi
+else
+    echo "  gh $(gh --version | head -1 | awk '{print $3}') — ok"
+fi
+
+if [[ "$SKIP_MCP" != "1" ]]; then
+    # python3
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "  Instalando python3..."
+        if [[ "$_OS" == "mac" ]]; then brew install python3
+        else apt_install python3; fi
+    else
+        echo "  python3 $(python3 --version | awk '{print $2}') — ok"
+    fi
+
+    # uv (Astral) — instalador oficial funciona em Linux e Mac
+    if ! command -v uv >/dev/null 2>&1; then
+        echo "  Instalando uv (Astral)..."
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+    else
+        echo "  uv $(uv --version | awk '{print $2}') — ok"
+    fi
+fi
+
+# Verificação final: aborta só se ainda faltar algo após tentativa de instalação
+_missing=()
+command -v git >/dev/null 2>&1     || _missing+=("git")
+command -v jq  >/dev/null 2>&1     || _missing+=("jq")
+command -v gh  >/dev/null 2>&1     || _missing+=("gh")
+if [[ "$SKIP_MCP" != "1" ]]; then
+    command -v python3 >/dev/null 2>&1 || _missing+=("python3")
+    command -v uv      >/dev/null 2>&1 || _missing+=("uv")
+fi
+if [[ ${#_missing[@]} -gt 0 ]]; then
+    echo ""
+    echo "  Ainda faltam após tentativa de instalação: ${_missing[*]}"
+    echo "  Instale manualmente e rode novamente. Rode ./scripts/doctor.sh para instruções."
     exit 1
 fi
-echo "  Tudo certo."
+echo "  Todas as dependências prontas."
 
 # --- 2. Symlink skills/ -> ~/.claude/skills/harness/ -----------------------
 echo ""
@@ -63,19 +140,30 @@ echo "  $CAPTURED_TARGET (captured skills do OpenSpace)"
 echo ""
 echo "[3/5] Instalando RTK..."
 if command -v rtk >/dev/null 2>&1; then
-    echo "  rtk já instalado ($(rtk --version 2>/dev/null || echo 'versão desconhecida'))."
+    echo "  rtk $(rtk --version 2>/dev/null || echo 'versão desconhecida') — ok"
 elif command -v brew >/dev/null 2>&1; then
+    echo "  Instalando rtk via Homebrew..."
     if brew install rtk >/dev/null 2>&1; then
         echo "  rtk instalado via Homebrew."
     else
-        echo "  Falha ao instalar rtk via Homebrew. Tente o instalador upstream:"
-        echo "    curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh"
+        echo "  Brew falhou, tentando instalador upstream..."
+        if curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh; then
+            export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+            echo "  rtk instalado via script upstream."
+        else
+            echo "  Falha ao instalar rtk. Instale manualmente via cargo:"
+            echo "    cargo install --git https://github.com/rtk-ai/rtk"
+        fi
     fi
 else
-    echo "  Homebrew não encontrado. Instale rtk via:"
-    echo "    curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh"
-    echo "  Ou via cargo:"
-    echo "    cargo install --git https://github.com/rtk-ai/rtk"
+    echo "  Instalando rtk via script upstream..."
+    if curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh; then
+        export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+        echo "  rtk instalado."
+    else
+        echo "  Falha ao instalar rtk. Instale manualmente via cargo:"
+        echo "    cargo install --git https://github.com/rtk-ai/rtk"
+    fi
 fi
 
 # --- 4. MCP servers ---------------------------------------------------------
