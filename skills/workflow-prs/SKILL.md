@@ -42,6 +42,7 @@ Closes #<outro-numero-se-houver>
 
 ## Regras
 
+- **Antes de abrir PR `feat/* → preview`, invoque o subagent `code-reviewer`** (Agent tool, se instalado em `~/.claude/agents/`) sobre o diff da branch. Reporte os achados ao dev antes do `gh pr create` — não bloqueia a abertura, mas o dev precisa ver o resultado primeiro. Se `code-reviewer` não estiver instalado, siga sem ele e avise o dev.
 - Cada issue fechada precisa de uma linha `Closes #N` **separada** (uma por linha). Um PR pode fechar várias issues relacionadas.
 - PR sem `Closes #N` em pelo menos uma issue não deve ser aprovado (exceção: PR `preview → main`, que agrega várias).
 - PR em que o comando de validação do projeto falha **nunca** é aprovado.
