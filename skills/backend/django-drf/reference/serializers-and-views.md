@@ -1,6 +1,6 @@
 # Serializers, Views/ViewSets e Services
 
-Referência de `stack-django-drf-jwt`. Volte ao [índice](../SKILL.md) para o quando-invocar.
+Referência de `backend/django-drf`. Volte ao [índice](../SKILL.md) para o quando-invocar.
 
 ## Serializers
 

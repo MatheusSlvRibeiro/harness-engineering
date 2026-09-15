@@ -41,8 +41,8 @@ Regra de bolso: se um futuro você não vai ganhar nada relendo isso em outro pr
 Antes de propor stack, padrão de pasta, lib de form, etc., **busque o que já foi decidido**:
 
 ```bash
-mempalace search "form library escolhida" --wing stack-react-vite-scss
-mempalace search "auth flow django" --wing stack-django-drf-jwt
+mempalace search "form library escolhida" --wing frontend-react-hook-form-zod
+mempalace search "auth flow django" --wing backend-jwt-cookie-auth
 mempalace search "preferência de PR" --wing harness
 ```
 

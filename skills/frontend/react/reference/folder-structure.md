@@ -1,36 +1,26 @@
 # Estrutura de pastas
 
-Referência de `stack-react-vite-scss`. Volte ao [índice](../SKILL.md) para o quando-invocar.
+Referência de `frontend/react`. Volte ao [índice](../SKILL.md) para o quando-invocar.
 
 ```
 src/
 ├── assets/                   # imagens e fontes estáticas
 ├── components/               # componentes usados em 2+ lugares
 │   └── Button/
-│       ├── Button.tsx
-│       ├── Button.module.scss
-│       └── Button.test.tsx
 ├── pages/                    # uma pasta por rota / view
 │   └── Dashboard/
-│       ├── Dashboard.tsx
-│       ├── Dashboard.module.scss
-│       └── Dashboard.test.tsx
 ├── forms/ (ou junto da page)  # um form = .tsx (estrutura) + .schema.ts (tipo + validação)
 │   └── LoginForm/
-│       ├── LoginForm.tsx
-│       ├── LoginForm.schema.ts
-│       └── LoginForm.test.tsx
 ├── hooks/                    # hooks reutilizados em 2+ lugares
 ├── lib/                      # funções utilitárias e acesso a API
 │   └── __tests__/
 ├── schemas/                  # schemas zod usados em 2+ lugares
-├── types/
-│   └── index.ts
-└── styles/
-    ├── _variables.scss
-    ├── _mixins.scss
-    └── global.scss           # só importado em main.tsx
+└── types/
+    └── index.ts
 ```
+
+O arquivo/pasta de estilo global (`styles/`) segue a convenção do skill de estilo do projeto
+(`frontend/scss-bem` ou `frontend/tailwind`) — não é parte deste layout genérico.
 
 ## Regra de colocação
 
@@ -43,5 +33,3 @@ src/
 | Função utilitária | inline ou `utils.ts` local | `src/lib/` |
 
 Não crie pasta compartilhada preventivamente — promova quando o reuso acontecer de verdade.
-
-**Componente `.tsx` é só estrutura.** Tipo de dado que vem de fora (form, resposta de API, params de URL) é sempre derivado de um schema zod (`z.infer<typeof schema>`) em arquivo próprio — nunca uma `interface`/`type` solta dentro do `.tsx`. `interface` de **props** do componente (que não representa input externo) pode continuar no próprio `.tsx` — ver [reference/components-and-styling.md](components-and-styling.md).

@@ -1,11 +1,10 @@
 ---
-name: stack-django-drf-jwt
-description: Archetype backend Django 5 + Django REST Framework + SimpleJWT (autenticação). Invoque ao criar model, serializer, view, endpoint de autenticação, migration ou teste em qualquer projeto que usa esta stack. Convenções iniciais — devem amadurecer via CAPTURED conforme projetos reais adotam.
+name: django-drf
+description: Archetype backend Django 5 + Django REST Framework — models, serializers, views, testes, env vars. Invoque ao criar model, serializer, view, migration ou teste em qualquer projeto Django. Autenticação JWT via cookie fica em backend/jwt-cookie-auth.
 ---
 
-# Stack: Django + DRF + JWT
+# Django + DRF
 
-Archetype para projetos **Django 5 + Django REST Framework + djangorestframework-simplejwt**.
 Banco padrão: **PostgreSQL**. Testes: **pytest-django + factory_boy**. Config: **django-environ**.
 
 > **Status:** esqueleto opinionado. Convenções aqui são um ponto de partida razoável — espera-se
@@ -16,7 +15,7 @@ Banco padrão: **PostgreSQL**. Testes: **pytest-django + factory_boy**. Config: 
 | Arquivo | Conteúdo |
 | --- | --- |
 | [reference/folder-structure.md](reference/folder-structure.md) | Estrutura de pastas |
-| [reference/auth-and-models.md](reference/auth-and-models.md) | SimpleJWT config, convenções de model (PK, timestamps, managers, on_delete) |
+| [reference/models.md](reference/models.md) | PK, timestamps, managers, on_delete |
 | [reference/serializers-and-views.md](reference/serializers-and-views.md) | Serializers, ViewSets, paginação, URLs, services |
 | [reference/testing.md](reference/testing.md) | pytest-django + factory_boy, fixtures, teste de integração |
 | [reference/env-vars.md](reference/env-vars.md) | django-environ, variáveis obrigatórias |
@@ -28,12 +27,11 @@ Banco padrão: **PostgreSQL**. Testes: **pytest-django + factory_boy**. Config: 
 - `fields = '__all__'` é proibido em serializers — sempre liste explicitamente.
 - Todo endpoint tem teste de integração que bate no banco real.
 - `get_queryset()` filtra por escopo do usuário em todo viewset que retorna dados de usuário.
-- JWT em header `Authorization: Bearer <token>` — sem cookies para APIs puras.
 - `SECRET_KEY` e credenciais nunca no repo; sempre via env var.
 - Migrations geradas com `makemigrations` ficam commitadas; nunca edite migration aplicada em outra branch sem coordenar.
 
 ## Skills relacionadas
 
+- Autenticação: `backend/jwt-cookie-auth`
 - Fluxo de issue, branch e PR: `workflow-branching`, `workflow-prs`, `workflow-issues`
 - Feature list e baseline: `ratchet-feature-list`
-- Frontend: `stack-react-vite-scss`

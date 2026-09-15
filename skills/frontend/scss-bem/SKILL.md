@@ -1,40 +1,14 @@
-# Componentes, BEM e SCSS
+---
+name: scss-bem
+description: Convenção de estilo SCSS Modules + BEM para componentes React. Invoque ao estilizar um componente em projeto que usa este archetype (project-multitenant).
+---
 
-Referência de `stack-react-vite-scss`. Volte ao [índice](../SKILL.md) para o quando-invocar.
+# SCSS Modules + BEM
 
-## Componentes
+BEM dentro de SCSS Modules: o escopo do arquivo já evita colisão global. Cada componente tem um
+`.module.scss` ao lado do `.tsx` (ver `frontend/react` → folder-structure).
 
-- Uma pasta por componente (`.tsx` + `.module.scss` + `.test.tsx`).
-- Export **nomeado**, não `default`, para componentes não-page.
-- Props tipadas com `interface`, nunca com `type` inline anônimo.
 - Nunca importe CSS global dentro de um componente — use **SCSS Modules**.
-- Nunca use inline styles (`style={{}}`).
-
-```tsx
-// Button/Button.tsx
-import styles from './Button.module.scss';
-
-interface ButtonProps {
-  label: string;
-  variant?: 'primary' | 'secondary';
-  onClick: () => void;
-}
-
-export function Button({ label, variant = 'primary', onClick }: ButtonProps) {
-  return (
-    <button
-      className={`${styles.button} ${styles[`button--${variant}`]}`}
-      onClick={onClick}
-    >
-      {label}
-    </button>
-  );
-}
-```
-
-## BEM + SCSS Modules
-
-BEM dentro de SCSS Modules: o escopo do arquivo já evita colisão global.
 
 ```scss
 // Button.module.scss
@@ -49,8 +23,10 @@ BEM dentro de SCSS Modules: o escopo do arquivo já evita colisão global.
 }
 ```
 
-Uso no `.tsx`:
 ```tsx
+// Button/Button.tsx
+import styles from './Button.module.scss';
+
 // elemento + modifier
 <button className={`${styles.button} ${styles['button--primary']}`} />
 
@@ -87,3 +63,10 @@ Quando precisar de funções do Sass no arquivo, importe explicitamente:
 @use 'sass:color';
 .foo { background: color.adjust(#3366ff, $lightness: 10%); }
 ```
+
+`src/styles/global.scss` (reset, tipografia base) é importado **só** em `main.tsx` — nunca dentro de
+um componente.
+
+## Skills relacionadas
+
+- Estrutura de componente: `frontend/react`

@@ -79,4 +79,6 @@ Formato sugerido: "Uma <tipo de ferramenta> que <faz X> para <usuário-alvo>, pa
 ---
 
 > **Stack, validação, env vars e setup** ficam em `.gsd/STACK.md`.
-> **Convenções de código** (folder layout, componentes, testes) vêm da skill `stack-<archetype>` (ex.: `stack-react-vite-scss`, `stack-django-drf-jwt`) — sem CONVENTIONS.md por projeto na v2.
+> **Convenções de código** (folder layout, componentes, testes) vêm dos skills atômicos `frontend/*` /
+> `backend/*` combinados pelo archetype de projeto (`project-multitenant`, `project-spa`, ex.:
+> `frontend/react`, `backend/django-drf`) — sem CONVENTIONS.md por projeto na v2.

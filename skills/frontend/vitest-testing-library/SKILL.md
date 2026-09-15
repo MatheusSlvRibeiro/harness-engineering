@@ -1,6 +1,9 @@
-# Testes (Vitest + Testing Library)
+---
+name: vitest-testing-library
+description: Convenção de teste de componente React com Vitest + Testing Library. Invoque ao escrever teste de componente ou de função em src/lib/.
+---
 
-Referência de `stack-react-vite-scss`. Volte ao [índice](../SKILL.md) para o quando-invocar.
+# Vitest + Testing Library
 
 ```ts
 // Button.test.tsx
@@ -40,3 +43,7 @@ test: {
 // src/test-setup.ts
 import '@testing-library/jest-dom';
 ```
+
+## Skills relacionadas
+
+- Estrutura de componente: `frontend/react`
