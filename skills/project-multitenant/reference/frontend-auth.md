@@ -2,7 +2,7 @@
 
 Referência de `project-multitenant`. Volte ao [índice](../SKILL.md) para o quando-invocar.
 
-O backend (`stack-django-drf-jwt`) seta os tokens em cookies `httpOnly`; o frontend nunca lê nem
+O backend (`backend/jwt-cookie-auth`) seta os tokens em cookies `httpOnly`; o frontend nunca lê nem
 guarda o access/refresh token diretamente — só precisa mandar `credentials`/`withCredentials` e
 ecoar o cookie CSRF.
 
@@ -36,4 +36,4 @@ api.interceptors.request.use((config) => {
 - Expiração de access token: um 401 dispara `POST /token/refresh/` (o refresh também vem de cookie)
   e repete a request original; se o refresh falhar, redireciona pro login.
 - `VITE_API_URL` aponta pro domínio da API — se front e API estão em domínios diferentes, o backend
-  precisa de `SameSite='None'` + `Secure=True` (ver `stack-django-drf-jwt`).
+  precisa de `SameSite='None'` + `Secure=True` (ver `backend/jwt-cookie-auth`).

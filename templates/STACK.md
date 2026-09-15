@@ -19,7 +19,8 @@ As convenções de código (folder layout, componentes, testes, schemas) **não*
 - Gerenciador de pacotes:
 - Deploy:
 
-**Archetype skill correspondente:** <ex.: `stack-react-vite-scss` · `stack-django-drf-jwt` · ou "nenhum ainda — convenções emergem via OpenSpace">
+**Archetype de projeto correspondente:** <ex.: `project-multitenant` · `project-spa` · ou "nenhum ainda — convenções emergem via OpenSpace">
+**Skills atômicos combinados:** <ex.: `frontend/react` + `frontend/scss-bem` + `backend/django-drf` + `backend/jwt-cookie-auth`>
 
 ---
 

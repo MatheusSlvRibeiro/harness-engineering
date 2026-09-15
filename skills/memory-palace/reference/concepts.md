@@ -17,8 +17,8 @@ Referência de `memory-palace`. Volte ao [índice](../SKILL.md) para o quando-in
 | --- | --- |
 | `<slug-do-projeto>` | Tudo específico daquele projeto (uma wing por projeto, slug igual ao nome da pasta) |
 | `harness` | Meta-decisões sobre como o dev usa o harness (workflow adotado, convenções de PR que diferem do default) |
-| `stack-react-vite-scss` | Decisões cross-projeto sobre o archetype frontend (libs adotadas, padrões que evoluíram) |
-| `stack-django-drf-jwt` | Idem para backend |
+| `frontend-<tech>` (ex.: `frontend-react-hook-form-zod`) | Decisões cross-projeto sobre um skill atômico de frontend (libs adotadas, padrões que evoluíram) |
+| `backend-<tech>` (ex.: `backend-django-drf`) | Idem para um skill atômico de backend |
 | `agents/<nome>` | Diários de agentes especialistas (gerenciado pelo próprio MemPalace via `mempalace_list_agents`) |
 
 **Regra:** wing de projeto = nome da pasta do repo, em kebab-case. Não invente apelido novo.

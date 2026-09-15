@@ -7,24 +7,27 @@ description: Archetype de projeto para SPA leve — React + Tailwind + Node/Fast
 
 Combinação de stack para produtos que são essencialmente frontend — o backend existe só pra cobrir o
 que o browser não pode fazer sozinho (enviar email, assinar um webhook, proxy autenticado pra uma API
-terceira). Este skill **não redefine convenções de código** — elas moram nos skills `stack-*` linkados
-abaixo. Aqui vive só a decisão de *quais* peças combinar e *por quê*.
+terceira). Este skill **não redefine convenções de código** — elas moram nos skills atômicos
+`frontend/*` e `backend/*` linkados abaixo. Aqui vive só a decisão de *quais* peças combinar e *por
+quê*.
 
 ## Peças da stack
 
 | Camada | Escolha | Convenções em |
 | --- | --- | --- |
-| Frontend | React 18 + Vite + TypeScript + Tailwind CSS | `stack-react-tailwind` |
-| Formulários | React Hook Form + zod | `stack-react-tailwind` → [reference/aliases-and-forms.md](../stack-react-tailwind/reference/aliases-and-forms.md) |
-| Backend | Node.js + Fastify + TypeScript | `stack-node-fastify` |
-| Validação de API | zod (mesma lib do frontend, mesmo mental model) | `stack-node-fastify` → [reference/routes-and-validation.md](../stack-node-fastify/reference/routes-and-validation.md) |
+| Componentes | React 18 + Vite + TypeScript | `frontend/react`, `frontend/typescript`, `frontend/vite` |
+| Estilo | Tailwind CSS | `frontend/tailwind` |
+| Formulários | React Hook Form + zod | `frontend/react-hook-form-zod` |
+| Testes (frontend) | Vitest + Testing Library | `frontend/vitest-testing-library` |
+| Backend | Node.js + Fastify + TypeScript | `backend/fastify` |
+| Validação de API | zod (mesma lib do frontend, mesmo mental model) | `backend/fastify` → [reference/routes-and-validation.md](../backend/fastify/reference/routes-and-validation.md) |
 
 ## Por que esta combinação
 
 - **Tailwind em vez de SCSS Modules**: SPA leve tende a ter poucas telas e iterar rápido em cima de
   um design já pronto (Figma/biblioteca de componentes) — utilitário no JSX é mais rápido pra isso do
   que manter arquivo `.module.scss` por componente. Se o projeto crescer pra dezenas de telas com
-  design system próprio, reavalie — `stack-react-vite-scss` não é proibido aqui, é só não o padrão.
+  design system próprio, reavalie — `frontend/scss-bem` não é proibido aqui, é só não o padrão.
 - **Node/Fastify em vez de Django**: o backend não tem modelagem relacional — é um punhado de rotas
   sem estado ou com estado trivial. Usar a mesma linguagem do frontend (TypeScript) reduz o custo de
   troca de contexto pra um time pequeno, e Fastify tem overhead de setup bem menor que um projeto
@@ -43,7 +46,5 @@ abaixo. Aqui vive só a decisão de *quais* peças combinar e *por quê*.
 
 ## Skills relacionadas
 
-- Frontend: `stack-react-tailwind`
-- Backend: `stack-node-fastify`
 - Fluxo de issue, branch e PR: `workflow-branching`, `workflow-prs`, `workflow-issues`
 - Feature list e baseline: `ratchet-feature-list`

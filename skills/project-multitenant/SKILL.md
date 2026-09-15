@@ -6,19 +6,20 @@ description: Archetype de projeto para SaaS multi-tenant — React + Django + Po
 # Projeto: Multi-tenant SaaS
 
 Combinação de stack para produtos SaaS com múltiplos tenants (organizações/clientes isolados).
-Este skill **não redefine convenções de código** — elas moram nos skills `stack-*` linkados abaixo.
-Aqui vive só a decisão de *quais* peças combinar e *por quê*.
+Este skill **não redefine convenções de código** — elas moram nos skills atômicos `frontend/*` e
+`backend/*` linkados abaixo. Aqui vive só a decisão de *quais* peças combinar e *por quê*.
 
 ## Peças da stack
 
 | Camada | Escolha | Convenções em |
 | --- | --- | --- |
-| Frontend | React 18 + Vite + TypeScript + SCSS Modules (BEM) | `stack-react-vite-scss` |
-| Formulários | React Hook Form + zod | `stack-react-vite-scss` → [reference/aliases-and-forms.md](../stack-react-vite-scss/reference/aliases-and-forms.md) |
-| Tabelas | TanStack Table | [reference/tables.md](reference/tables.md) |
-| Backend | Django 5 + DRF | `stack-django-drf-jwt` |
-| Banco | PostgreSQL | `stack-django-drf-jwt` |
-| Autenticação | JWT via cookie httpOnly | `stack-django-drf-jwt` → [reference/auth-and-models.md](../stack-django-drf-jwt/reference/auth-and-models.md) |
+| Componentes | React 18 + Vite + TypeScript | `frontend/react`, `frontend/typescript`, `frontend/vite` |
+| Estilo | SCSS Modules + BEM | `frontend/scss-bem` |
+| Formulários | React Hook Form + zod | `frontend/react-hook-form-zod` |
+| Tabelas | TanStack Table | `frontend/tanstack-table` |
+| Testes (frontend) | Vitest + Testing Library | `frontend/vitest-testing-library` |
+| Backend | Django 5 + DRF + PostgreSQL | `backend/django-drf` |
+| Autenticação | JWT via cookie httpOnly | `backend/jwt-cookie-auth` |
 | Frontend ↔ cookie auth | fetch/axios com credentials + header CSRF | [reference/frontend-auth.md](reference/frontend-auth.md) |
 
 ## Por que esta combinação
@@ -31,16 +32,18 @@ Aqui vive só a decisão de *quais* peças combinar e *por quê*.
 - **TanStack Table em vez de montar tabela na mão**: SaaS multi-tenant quase sempre tem telas de
   listagem densa (usuários da org, faturas, logs) com sort/filtro/paginação — reimplementar isso por
   tela é o tipo de esforço que não deveria variar de projeto pra projeto.
+- **SCSS Modules + BEM em vez de Tailwind**: SaaS multi-tenant tende a acumular telas de admin
+  complexas e às vezes theming por tenant — um arquivo de estilo isolado por componente escala melhor
+  pra isso do que classes utilitárias espalhadas. Se o projeto for majoritariamente telas simples,
+  reavalie contra `project-spa`.
 
 ## Regra inegociável específica deste archetype
 
 - Todo model, queryset e endpoint que retorna dado de tenant **filtra por tenant/organização** — não
   existe endpoint "global" que um usuário de um tenant possa usar pra enxergar dado de outro. Isso é
-  além do filtro por usuário já exigido em `stack-django-drf-jwt`.
+  além do filtro por usuário já exigido em `backend/django-drf`.
 
 ## Skills relacionadas
 
-- Frontend: `stack-react-vite-scss`
-- Backend: `stack-django-drf-jwt`
 - Fluxo de issue, branch e PR: `workflow-branching`, `workflow-prs`, `workflow-issues`
 - Feature list e baseline: `ratchet-feature-list`

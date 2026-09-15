@@ -19,7 +19,7 @@ As convenções de código (folder layout, componentes, testes, schemas) **não*
 - Gerenciador de pacotes: N/A — dependências são binários de sistema (`bash`, `git`, `jq`; `gh` e `uv`/MCPs opcionais)
 - Deploy: N/A — distribuído via `git clone` + symlink (`scripts/setup.sh`), consumido por outros repos via `harness-init.sh` / `harness-sync.sh`
 
-**Archetype skill correspondente:** nenhum — este repo não roda `stack-react-vite-scss` nem `stack-django-drf-jwt`; ele é quem define essas skills.
+**Archetype de projeto correspondente:** nenhum — este repo não roda `project-multitenant` nem `project-spa`; ele é quem define esses archetypes e os skills atômicos `frontend/*`/`backend/*` que eles combinam.
 
 ---
 

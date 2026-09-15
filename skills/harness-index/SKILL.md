@@ -39,22 +39,29 @@ A separação impede que o QA seja "convencido" pela sessão dev — ele só che
 | GitHub Project (6 colunas, criar via gh, sincronia ROADMAP) | `workflow-project-board` |
 | Adicionar feature, atualizar baseline, ratchet | `ratchet-feature-list` |
 | Iniciar projeto novo, ou "que stack usamos pra isso" | ver tabela de archetypes abaixo |
-| Código frontend (React, Vite, SCSS, RHF, zod, BEM, aliases) | `stack-react-vite-scss` |
-| Código frontend (React, Vite, Tailwind, RHF, zod, aliases) | `stack-react-tailwind` |
-| Código backend (Django, DRF, JWT via cookie httpOnly) | `stack-django-drf-jwt` |
-| Código backend (Node.js, Fastify, zod) | `stack-node-fastify` |
+| Código frontend — componente React, estrutura, props | `frontend/react` |
+| Código frontend — type safety TypeScript | `frontend/typescript` |
+| Código frontend — aliases, env vars `VITE_*` | `frontend/vite` |
+| Código frontend — estilo SCSS Modules + BEM | `frontend/scss-bem` |
+| Código frontend — estilo Tailwind CSS | `frontend/tailwind` |
+| Código frontend — formulário (RHF + zod) | `frontend/react-hook-form-zod` |
+| Código frontend — tabela densa (sort/filtro/paginação) | `frontend/tanstack-table` |
+| Código frontend — teste (Vitest + Testing Library) | `frontend/vitest-testing-library` |
+| Código backend — Django, DRF (model, serializer, view) | `backend/django-drf` |
+| Código backend — autenticação JWT via cookie httpOnly | `backend/jwt-cookie-auth` |
+| Código backend — Node.js, Fastify, zod | `backend/fastify` |
 | Memória cross-projeto (wings/rooms/drawers, MemPalace) | `memory-palace` |
 | Rituais de início/fim de sessão (wake-up, search, drawer recap) | `session-rituals` |
 | Skills auto-evolutivas (FIX/DERIVED/CAPTURED, OpenSpace) | `evolving-skills` |
 
 ## Archetypes de projeto — quais stacks combinar
 
-Um `project-*` é o ponto de entrada de um projeto novo: diz *quais* skills `stack-*` combinar e
-*por quê*. As convenções de código em si continuam só nos skills `stack-*` — o archetype não as
-duplica.
+Um `project-*` é o ponto de entrada de um projeto novo: diz *quais* skills atômicos `frontend/*` e
+`backend/*` combinar e *por quê*. As convenções de código em si continuam só nos skills atômicos — o
+archetype não as duplica.
 
 | Tipo de projeto | Invoque | Combina |
 | --- | --- | --- |
-| SaaS multi-tenant (React + Django + Postgres) | `project-multitenant` | `stack-react-vite-scss` + `stack-django-drf-jwt` |
-| SPA leve (React + Tailwind + API mínima) | `project-spa` | `stack-react-tailwind` + `stack-node-fastify` |
+| SaaS multi-tenant (React + Django + Postgres) | `project-multitenant` | `frontend/react` + `frontend/scss-bem` + `frontend/tanstack-table` + `backend/django-drf` + `backend/jwt-cookie-auth` |
+| SPA leve (React + Tailwind + API mínima) | `project-spa` | `frontend/react` + `frontend/tailwind` + `backend/fastify` |
 | Bots / workers assíncronos | ainda não definido | — |

@@ -20,5 +20,5 @@ Tudo fica em `~/.mempalace/` por padrão. Nada sai da máquina sem opt-in.
 ## Skills relacionadas
 
 - Índice geral e quando invocar cada skill: `harness-index`
-- Convenções de stack (decisões podem migrar pra cá quando viram regra): `stack-react-vite-scss`, `stack-django-drf-jwt`
+- Convenções de stack (decisões podem migrar pra cá quando viram regra): skills atômicos `frontend/*`/`backend/*` e archetypes `project-multitenant`/`project-spa`
 - Acompanhamento de progresso (fica em `.gsd/`, não no palace): `harness-index`

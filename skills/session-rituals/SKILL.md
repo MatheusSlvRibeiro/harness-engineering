@@ -23,8 +23,8 @@ Via MCP, isso é `mempalace_wake_up`. Carrega o contexto recente do palace (últ
 
 Se o dev abriu a sessão com uma pergunta ou tarefa concreta, **antes de propor abordagem**, busque o que já foi decidido. Exemplos:
 
-- Task: "implementar auth no novo endpoint" → `mempalace_search "auth flow" --wing <projeto>` e `mempalace_search "auth flow" --wing stack-django-drf-jwt`
-- Task: "qual lib de form usar?" → `mempalace_search "form library" --wing stack-react-vite-scss` e `mempalace_search "form library" --wing harness`
+- Task: "implementar auth no novo endpoint" → `mempalace_search "auth flow" --wing <projeto>` e `mempalace_search "auth flow" --wing backend-jwt-cookie-auth`
+- Task: "qual lib de form usar?" → `mempalace_search "form library" --wing frontend-react-hook-form-zod` e `mempalace_search "form library" --wing harness`
 - Task: "vamos refatorar o módulo X" → `mempalace_search "<nome do módulo>" --wing <projeto>`
 
 Se a busca retornar um drawer relevante, **exiba o conteúdo literal ao dev** antes de continuar. Não silencie memória: "encontrei essa decisão de 2026-02-14 sobre form library — ainda vale?".
