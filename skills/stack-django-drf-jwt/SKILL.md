@@ -1,12 +1,17 @@
 ---
 name: stack-django-drf-jwt
-description: Archetype backend Django 5 + Django REST Framework + SimpleJWT (autenticação). Invoque ao criar model, serializer, view, endpoint de autenticação, migration ou teste em qualquer projeto que usa esta stack. Convenções iniciais — devem amadurecer via CAPTURED conforme projetos reais adotam.
+description: Archetype backend Django 5 + Django REST Framework + SimpleJWT (autenticação via cookie httpOnly). Invoque ao criar model, serializer, view, endpoint de autenticação, migration ou teste em qualquer projeto que usa esta stack. Convenções iniciais — devem amadurecer via CAPTURED conforme projetos reais adotam.
 ---
 
 # Stack: Django + DRF + JWT
 
 Archetype para projetos **Django 5 + Django REST Framework + djangorestframework-simplejwt**.
 Banco padrão: **PostgreSQL**. Testes: **pytest-django + factory_boy**. Config: **django-environ**.
+
+> Usado pelo archetype de projeto `project-multitenant`. Autenticação padrão é **cookie httpOnly**
+> (ver [reference/auth-and-models.md](reference/auth-and-models.md)); header `Authorization: Bearer`
+> é a exceção, não a regra — só para clientes que não são o browser da própria SPA (mobile, integração
+> server-to-server).
 
 > **Status:** esqueleto opinionado. Convenções aqui são um ponto de partida razoável — espera-se
 > que amadureçam via CAPTURED (mecanismo OpenSpace) conforme projetos reais decidam.
@@ -28,7 +33,8 @@ Banco padrão: **PostgreSQL**. Testes: **pytest-django + factory_boy**. Config: 
 - `fields = '__all__'` é proibido em serializers — sempre liste explicitamente.
 - Todo endpoint tem teste de integração que bate no banco real.
 - `get_queryset()` filtra por escopo do usuário em todo viewset que retorna dados de usuário.
-- JWT em header `Authorization: Bearer <token>` — sem cookies para APIs puras.
+- JWT em **cookie httpOnly + Secure + SameSite**, nunca em `localStorage`/`sessionStorage`. Header `Bearer` só para clientes non-browser — documente a exceção quando usada.
+- Todo endpoint que muda estado e é chamado a partir do cookie exige o header CSRF (ver [reference/auth-and-models.md](reference/auth-and-models.md)).
 - `SECRET_KEY` e credenciais nunca no repo; sempre via env var.
 - Migrations geradas com `makemigrations` ficam commitadas; nunca edite migration aplicada em outra branch sem coordenar.
 
@@ -37,3 +43,4 @@ Banco padrão: **PostgreSQL**. Testes: **pytest-django + factory_boy**. Config: 
 - Fluxo de issue, branch e PR: `workflow-branching`, `workflow-prs`, `workflow-issues`
 - Feature list e baseline: `ratchet-feature-list`
 - Frontend: `stack-react-vite-scss`
+- Archetype de projeto: `project-multitenant`

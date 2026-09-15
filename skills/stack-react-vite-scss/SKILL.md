@@ -33,3 +33,4 @@ Formulários: **React Hook Form (RHF) + zod**. Convenção de CSS: **BEM dentro 
 - Fluxo de issue, branch e PR: `workflow-branching`, `workflow-prs`, `workflow-issues`
 - Feature list e baseline: `ratchet-feature-list`
 - Backend: `stack-django-drf-jwt`
+- Archetype de projeto: `project-multitenant`

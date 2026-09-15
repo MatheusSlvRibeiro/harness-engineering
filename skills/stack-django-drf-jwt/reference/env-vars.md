@@ -16,7 +16,11 @@ DEBUG = env.bool('DJANGO_DEBUG', default=False)
 ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=[])
 DATABASES = {'default': env.db('DATABASE_URL')}
 CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[])
+CORS_ALLOW_CREDENTIALS = True  # obrigatório para o browser enviar/receber os cookies de auth
 ```
+
+Com auth via cookie httpOnly, `CORS_ALLOWED_ORIGINS` nunca pode ser `*` — o browser recusa
+credenciais (cookies) em requests com origem coringa. Liste os domínios exatos do frontend.
 
 Variáveis obrigatórias em todo projeto:
 

@@ -25,7 +25,22 @@ Você está em um projeto que usa o **harness-engineering**. Este índice descre
 | Mensagem de commit (Conventional Commits) | `workflow-commits` |
 | GitHub Project (6 colunas, criar via gh, sincronia ROADMAP) | `workflow-project-board` |
 | Adicionar feature, atualizar baseline, ratchet | `ratchet-feature-list` |
+| Iniciar projeto novo, ou "que stack usamos pra isso" | ver tabela de archetypes abaixo |
 | Código frontend (React, Vite, SCSS, RHF, zod, BEM, aliases) | `stack-react-vite-scss` |
-| Código backend (Django, DRF, JWT) | `stack-django-drf-jwt` |
+| Código frontend (React, Vite, Tailwind, RHF, zod, aliases) | `stack-react-tailwind` |
+| Código backend (Django, DRF, JWT via cookie httpOnly) | `stack-django-drf-jwt` |
+| Código backend (Node.js, Fastify, zod) | `stack-node-fastify` |
 | Memória cross-projeto (wings/rooms/drawers, MemPalace) | `memory-palace` |
 | Skills auto-evolutivas (FIX/DERIVED/CAPTURED, OpenSpace) | `evolving-skills` |
+
+## Archetypes de projeto — quais stacks combinar
+
+Um `project-*` é o ponto de entrada de um projeto novo: diz *quais* skills `stack-*` combinar e
+*por quê*. As convenções de código em si continuam só nos skills `stack-*` — o archetype não as
+duplica.
+
+| Tipo de projeto | Invoque | Combina |
+| --- | --- | --- |
+| SaaS multi-tenant (React + Django + Postgres) | `project-multitenant` | `stack-react-vite-scss` + `stack-django-drf-jwt` |
+| SPA leve (React + Tailwind + API mínima) | `project-spa` | `stack-react-tailwind` + `stack-node-fastify` |
+| Bots / workers assíncronos | ainda não definido | — |
