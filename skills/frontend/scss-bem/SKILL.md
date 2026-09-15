@@ -1,5 +1,5 @@
 ---
-name: frontend/scss-bem
+name: scss-bem
 description: Convenção de estilo SCSS Modules + BEM para componentes React. Invoque ao estilizar um componente em projeto que usa este archetype (project-multitenant).
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: backend/jwt-cookie-auth
+name: jwt-cookie-auth
 description: Autenticação JWT via cookie httpOnly com djangorestframework-simplejwt — para APIs Django consumidas pela própria SPA do produto. Invoque ao criar endpoint de login/logout/refresh, ou ao configurar autenticação num projeto Django.
 ---
 

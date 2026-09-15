@@ -1,5 +1,5 @@
 ---
-name: frontend/vitest-testing-library
+name: vitest-testing-library
 description: Convenção de teste de componente React com Vitest + Testing Library. Invoque ao escrever teste de componente ou de função em src/lib/.
 ---
 

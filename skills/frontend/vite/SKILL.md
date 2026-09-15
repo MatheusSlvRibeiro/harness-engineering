@@ -1,5 +1,5 @@
 ---
-name: frontend/vite
+name: vite
 description: Convenções de Vite — path aliases e variáveis de ambiente VITE_*. Invoque ao configurar alias, adicionar variável de ambiente, ou iniciar um projeto novo com Vite.
 ---
 

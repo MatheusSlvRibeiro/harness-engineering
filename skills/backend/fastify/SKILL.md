@@ -1,5 +1,5 @@
 ---
-name: backend/fastify
+name: fastify
 description: Archetype backend Node.js + Fastify + TypeScript para APIs leves (formulários, integrações simples, sem modelagem relacional pesada). Invoque ao criar rota, plugin, schema de validação ou teste em qualquer projeto que usa esta stack como API.
 ---
 

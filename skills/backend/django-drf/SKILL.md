@@ -1,5 +1,5 @@
 ---
-name: backend/django-drf
+name: django-drf
 description: Archetype backend Django 5 + Django REST Framework — models, serializers, views, testes, env vars. Invoque ao criar model, serializer, view, migration ou teste em qualquer projeto Django. Autenticação JWT via cookie fica em backend/jwt-cookie-auth.
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: frontend/tailwind
+name: tailwind
 description: Convenção de estilo Tailwind CSS para componentes React. Invoque ao estilizar um componente em projeto que usa este archetype (project-spa).
 ---
 

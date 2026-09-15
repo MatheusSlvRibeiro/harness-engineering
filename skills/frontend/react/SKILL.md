@@ -1,5 +1,5 @@
 ---
-name: frontend/react
+name: react
 description: Convenções de componente React 18 — estrutura de pasta, export, props tipadas — independente da biblioteca de estilo (SCSS Modules ou Tailwind). Invoque ao criar ou revisar qualquer componente React.
 ---
 

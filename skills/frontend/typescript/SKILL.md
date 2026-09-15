@@ -1,5 +1,5 @@
 ---
-name: frontend/typescript
+name: typescript
 description: Regras de type safety em TypeScript — sem any, narrowing, validação de resposta de API. Invoque ao escrever ou revisar qualquer código TypeScript no frontend.
 ---
 

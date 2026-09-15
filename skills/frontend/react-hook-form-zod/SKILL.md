@@ -1,5 +1,5 @@
 ---
-name: frontend/react-hook-form-zod
+name: react-hook-form-zod
 description: Convenção de formulários com React Hook Form + zod — schema, tipo e mensagem de erro vivem juntos, componente é só estrutura. Invoque ao criar ou revisar qualquer form.
 ---
 

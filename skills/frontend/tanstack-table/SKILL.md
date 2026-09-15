@@ -1,5 +1,5 @@
 ---
-name: frontend/tanstack-table
+name: tanstack-table
 description: Convenção de tabela com TanStack Table (headless) — sort, filtro, paginação. Invoque ao criar qualquer listagem densa com essas necessidades.
 ---
 
