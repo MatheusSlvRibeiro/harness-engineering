@@ -39,6 +39,7 @@ harness-engineering/                       (este repo)
 │   ├── stack-react-vite-scss/             ← archetype frontend
 │   ├── stack-django-drf-jwt/              ← archetype backend (esqueleto)
 │   ├── memory-palace/                     ← wings/rooms/drawers, cadência MemPalace
+│   ├── session-rituals/                   ← rituais de abertura/fechamento de sessão
 │   └── evolving-skills/                   ← FIX/DERIVED/CAPTURED, promoção curated/evolved
 ├── bootstrap/
 │   └── prompt.md                          ← bootstrap slim (entrevista referencia skills)
@@ -93,7 +94,7 @@ O setup:
 1. Valida `git`, `gh`, `python 3.9+`, `uv`, `node`.
 2. Cria junction (Windows) / symlink (Unix) `~/.claude/skills/harness` → `<repo>/skills`, e o diretório `~/.claude/skills/captured/` para skills evolved.
 3. Instala **RTK** (Rust Token Killer) — CLI proxy que filtra/comprime saída de comandos antes de chegar ao contexto do LLM, reduzindo 60–90% dos tokens em operações comuns (`git status`, `ls`, `pytest`, etc.).
-4. Instala MCPs (`uv tool install mempalace` + `uv tool install git+https://github.com/HKUDS/OpenSpace.git`) e escreve `~/.claude/mcp.json` com ambos. OpenSpace é apontado para `~/.claude/skills/captured/` via `OPENSPACE_HOST_SKILL_DIRS`.
+4. Instala MCPs (`uv tool install mempalace` + `uv tool install git+https://github.com/HKUDS/OpenSpace.git`) e escreve `~/.claude/mcp.json` com ambos. OpenSpace é apontado para `~/.claude/skills/captured/` via `OPENSPACE_HOST_SKILL_DIRS`. Baixa também os **hooks de auto-save** do MemPalace (`Stop` + `PreCompact`) para `~/.claude/hooks/mempalace/` e os wira em `~/.claude/settings.json` — sessões passam a indexar transcripts automaticamente, sem precisar lembrar de salvar manualmente.
 5. Roda `doctor.ps1` / `doctor.sh` ao final.
 
 **Atualizar skills depois:** `git pull` no repo. Junction continua válida.

@@ -1,311 +1,205 @@
-# Harness Engineering Template
+# Harness Engineering
 
-Um scaffolding reutilizável de regras, prompts e tooling que permite a um agente de IA (Claude Code ou similar) operar qualquer projeto com a mesma disciplina de workflow: branches, commits, issues, project board, validação e tracking de progresso.
+Um scaffolding reutilizável de **skills, MCPs, prompts e tooling** que permite a um agente de IA (Claude Code ou similar) operar qualquer projeto com a mesma disciplina de workflow: branches, commits, issues, project board, validação, tracking de progresso, memória cross-projeto e skills auto-evolutivas.
 
-Isto não é um gerador de código. É um **harness** — os documentos e convenções que um agente lê antes de escrever qualquer código, para que o trabalho produzido seja consistente e revisável.
+Isto não é um gerador de código. É um **harness** — o contexto que o agente carrega antes de escrever qualquer código, para que o trabalho produzido seja consistente e revisável.
+
+> **Versão atual: v2** (skills + MCPs). A v1 (AGENTS.md monolítico + scripts inline) continua suportada para projetos legados; o caminho de migração está em [`docs/harness-v2/migration.md`](docs/harness-v2/migration.md).
 
 ---
 
 ## Por que isso existe
 
-Sem um harness, toda sessão de IA começa do zero: o agente inventa convenções, o dev corrige, e o projeto deriva. Com um harness:
+Sem um harness, toda sessão de IA começa do zero: o agente inventa convenções, o dev corrige, e o projeto deriva. Com o harness:
 
-- Regras universais (formato de commit, branching, GitHub Project board) são escritas uma vez e compartilhadas entre todos os projetos.
-- Decisões específicas de stack (folder layout, componentes, testes) são capturadas uma vez por projeto e nunca relitigadas.
-- O agente lê as regras no início da sessão e segue sem ser lembrado.
-- Atualizações nas regras universais propagam para todos os projetos via script de sync.
+- Regras universais (Conventional Commits, branching, GitHub Project board, ratchet de qualidade) são escritas uma vez como **skills** e compartilhadas entre todos os projetos.
+- Decisões arquiteturais notáveis viram **drawers** no MemPalace (memória *verbatim* cross-projeto) e são recuperadas semanticamente em sessões futuras.
+- Convenções de stack (folder layout, componentes, testes) vivem em skills `stack-*` e podem evoluir automaticamente via OpenSpace conforme o uso.
+- Comandos de shell viram 60–90% mais baratos em tokens via RTK (CLI proxy transparente).
 
-Três modos de workspace são suportados, então o mesmo template funciona para apps solo, produtos full-stack espalhados por vários repos, ou qualquer coisa no meio.
-
----
-
-## Requisitos
-
-O harness é agnóstico de stack e intencionalmente mínimo. Para usar você precisa de:
-
-| Ferramenta | Usada por | Por quê |
-| --- | --- | --- |
-| `bash` ≥ 4 | todos os scripts | roda `harness-init.sh`, `harness-sync.sh`, `check-harness.sh` |
-| `git` | todos os scripts | necessário para detecção de repo e o diff de base-ref em `check-harness.sh` |
-| **`jq`** | `scripts/check-harness.sh` e o gate de CI | valida `.harness/feature_list.json` e `.harness/baseline.json` |
-| `gh` CLI *(opcional)* | regras do GitHub Project bootstrap em `AGENTS.md` | só precisa se você quiser o agente gerenciando issues/projects do terminal — [instalar](#instalando-o-gh-cli-opcional) |
-| `claude` CLI *(opcional)* | auto-start do `harness-init.sh` | só precisa se você quiser que a entrevista de bootstrap suba automaticamente — [instalar](#instalando-o-claude-code-cli-opcional) |
-
-`jq` é um binário de sistema — não dá pra declarar como dependência de projeto em `package.json`/`pyproject.toml`/etc. `harness-init.sh` detecta seu OS (distro Linux / macOS / shell Windows) e oferece instalar pra você na primeira vez que rodar o bootstrap. Para instalar manualmente:
-
-```bash
-# Debian/Ubuntu/WSL
-sudo apt-get install -y jq
-
-# macOS (Homebrew)
-brew install jq
-
-# Fedora/RHEL
-sudo dnf install -y jq
-
-# Arch
-sudo pacman -S jq
-
-# Alpine
-sudo apk add jq
-
-# Windows (Git Bash, MSYS2, Cygwin ou PowerShell)
-winget install jqlang.jq      # padrão no Windows 11; funciona em qualquer shell
-# ou:
-scoop install jq
-choco install jq
-```
-
-### Notas específicas de Windows
-
-Os shell scripts (`harness-init.sh`, `harness-sync.sh`, `check-harness.sh`) precisam de **bash**. Windows nativo não vem com bash, então use um destes:
-
-- **WSL** (recomendado) — ambiente Ubuntu/Debian completo; `apt-get` funciona como no Linux. Os scripts do harness rodam sem modificação.
-- **Git Bash** — instalado com Git for Windows. Bash funciona; install de `jq` cai em `winget`/`scoop`/`choco`.
-- **MSYS2** ou **Cygwin** — mesmo que Git Bash para nossos propósitos.
-
-PowerShell sozinho não basta — os scripts precisam de bash. Dentro de qualquer um dos shells acima, `winget install jqlang.jq` funciona porque `winget.exe` é um executável Windows comum chamável de qualquer shell.
-
-Em CI, `.github/workflows/harness-gate.yml` instala `jq` automaticamente no runner (Ubuntu) antes do check.
-
-### Instalando o Claude Code CLI (opcional)
-
-`harness-init.sh` consegue subir a entrevista de bootstrap automaticamente se o CLI `claude` estiver no seu PATH. Sem ele, o script cai num fallback que imprime o caminho do prompt para você colar numa sessão Claude Code manualmente — nada quebra, só uma etapa a mais.
-
-Precisa de Node 18+:
-
-```bash
-node --version    # check; install com `sudo apt-get install -y nodejs npm` se faltar
-npm install -g @anthropic-ai/claude-code
-claude --version  # verifica
-```
-
-**Erro de permissão?** Se o npm reclamar de `/usr/local/lib/node_modules` (EACCES), não faça `sudo npm install` — arrume o prefix do npm uma vez e nunca mais veja isso para qualquer pacote global:
-
-```bash
-mkdir -p ~/.npm-global
-npm config set prefix '~/.npm-global'
-echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.bashrc
-source ~/.bashrc
-
-# Agora tente de novo sem sudo:
-npm install -g @anthropic-ai/claude-code
-```
-
-Isso move o prefix global do npm de um path do sistema (root-owned) para sua home. Todos os `npm install -g` futuros funcionam sem `sudo`.
-
-### Instalando o `gh` CLI (opcional)
-
-O agente usa `gh` para criar issues, linkar projects e abrir PRs do terminal. Sem ele você faz essas etapas pela UI do GitHub — também ok.
-
-```bash
-# Debian/Ubuntu/WSL — repo oficial (apt-get install gh instala versão antiga)
-sudo apt-get install -y gh
-
-# macOS
-brew install gh
-
-# Windows
-winget install --id GitHub.cli
-
-# Depois do install, autentique uma vez:
-gh auth login
-```
+Default é single-repo (cobre uso solo e a maioria dos projetos). Suporte a modos umbrella/sub-repo existe como avançado, para times que compartilham produto entre vários repos.
 
 ---
 
-## Quick start
+## Arquitetura em uma figura
 
-### 1. Clone o template num lugar estável
-
-```bash
-git clone <este-repo> ~/harness-engineering-template
-export HARNESS_TEMPLATE=~/harness-engineering-template
+```
+~/.claude/skills/harness/          ← junction → <repo>/skills/   (CURATED, versionado)
+~/.claude/skills/captured/         ← skills evoluídas pelo OpenSpace   (untracked, local)
+~/.claude/mcp.json                 ← mempalace + openspace
 ```
 
-Adicione o `export` ao seu shell profile para que todo shell tenha.
+Documento de referência completo: [`docs/harness-v2/overview.md`](docs/harness-v2/overview.md).
 
-### 2. Inicialize um projeto novo
+---
 
-```bash
-cd ~/projects/my-new-project
-$HARNESS_TEMPLATE/scripts/harness-init.sh
-```
+## Pré-requisitos
 
-O script pergunta qual modo se aplica:
-
-| Modo | Quando escolher |
+| Ferramenta | Por quê |
 | --- | --- |
-| **single-repo** | Um repo Git. Caso padrão. |
-| **umbrella** | Uma pasta de workspace contendo vários repos independentes que servem um produto (ex.: `backend/` + `frontend/`). |
-| **sub-repo** | Um repo Git que vive dentro de um workspace umbrella. |
+| `git` ≥ 2.30, `gh` (GitHub CLI) | base de tudo |
+| `python` ≥ 3.9, [`uv`](https://docs.astral.sh/uv/) | instalar MCPs (MemPalace, OpenSpace) em envs isolados |
+| `node` ≥ 18 | Claude Code CLI |
+| `bash` ≥ 4 (Linux/macOS) ou PowerShell 5.1 (Windows) | scripts de setup/doctor |
+| `jq` | validar `.harness/feature_list.json` e `.harness/baseline.json` |
+| [RTK](https://github.com/rtk-ai/rtk) | comprime saída de comandos antes do LLM (instalado pelo setup) |
 
-Aí copia os arquivos certos e oferece subir a entrevista de bootstrap, que preenche os documentos específicos do projeto fazendo perguntas pra você.
+`setup.sh` / `setup.ps1` valida tudo e oferece instalar o que falta.
 
-### 3. Rode a entrevista de bootstrap
+### Notas de Windows
 
-Se você deixou o script subir, Claude Code abre com o prompt já carregado. **A partir desta versão, o agente escreve os arquivos diretamente:** ele analisa o código existente (em projetos existentes), pré-preenche o que consegue inferir, marca lacunas com `> [TBD: <pergunta>]` e te pergunta as lacunas em lote. No fim você tem:
-
-- `.gsd/SPEC.md` — o que o produto é
-- `.gsd/STACK.md` — identificação da stack, comando de validação, env vars
-- `.gsd/CONVENTIONS.md` — folder layout e regras específicas da stack
-- `.gsd/ROADMAP.md` — milestones, sprints, tarefas
-
-No modo umbrella você ganha `PRODUCT.md` e `INTEGRATION.md` no lugar.
-
-### 4. Comece uma sessão de coding
-
-Abra seu agente dentro do projeto. Com `CLAUDE.md` no root, `AGENTS.md` e suas referências em `@`-cascade carregam automaticamente. Para claude.ai ou outras interfaces que não auto-carregam, use os prompts em `.gsd/SESSION_START.md`.
+Os scripts `.sh` precisam de **bash**. Use WSL (recomendado) ou Git Bash. PowerShell sozinho não roda os `.sh`, mas existe equivalente `.ps1` para todo script principal. Para o sistema de hooks do RTK em modo completo, WSL é necessário.
 
 ---
 
-## O que tem no template
+## Setup por máquina (uma vez)
 
-```
-harness-engineering-template/
-├── AGENTS.md                  Regras universais que toda sessão precisa seguir
-├── CLAUDE.md                  @AGENTS.md — carregado pelo Claude Code
-├── .github/ISSUE_TEMPLATE/    Template padrão de issue
-├── .gsd/
-│   ├── BOOTSTRAP.md           Como rodar a entrevista de bootstrap
-│   ├── bootstrap-prompt.md    O prompt em si (alimentado para o agente pelo harness-init.sh)
-│   ├── SESSION_START.md       Prompts de início de sessão, início de tarefa, fechamento, QA
-│   ├── STACK.md               Skeleton: qual stack, comando de validação, env vars
-│   ├── CONVENTIONS.md         Skeleton: folder layout, componentes, testes, schemas
-│   ├── SPEC.md                Skeleton: visão do produto e restrições
-│   ├── ROADMAP.md             Skeleton: milestones / sprints / tarefas
-│   └── progress/              Logs de progresso de sprint vão aqui
-├── umbrella/                  Arquivos usados só em modo umbrella
-│   ├── AGENTS.md              Meta-regras para trabalho cross-repo
-│   ├── CLAUDE.md
-│   ├── PRODUCT.md             Skeleton: visão de produto unificada
-│   └── INTEGRATION.md         Skeleton: contratos cross-repo (API, tipos, auth, deploy)
-└── scripts/
-    ├── harness-init.sh        Setup uma vez só: copia arquivos + sobe a entrevista
-    └── harness-sync.sh        Atualiza arquivos universais num projeto existente
+```bash
+# Linux / macOS / WSL
+git clone https://github.com/MatheusSlvRibeiro/harness-engineering ~/harness-engineering
+cd ~/harness-engineering
+./scripts/setup.sh
+./scripts/doctor.sh
 ```
 
+```powershell
+# Windows nativo
+git clone https://github.com/MatheusSlvRibeiro/harness-engineering "$HOME\harness-engineering"
+cd "$HOME\harness-engineering"
+.\scripts\setup.ps1
+.\scripts\doctor.ps1
+```
+
+O setup faz, idempotentemente:
+
+1. Valida dependências base.
+2. Cria junction (Windows) / symlink (Unix) `~/.claude/skills/harness` → `<repo>/skills/`, e o diretório `~/.claude/skills/captured/` para skills evoluídas.
+3. Instala **RTK** via Homebrew, instalador upstream ou cargo (com fallback).
+4. Instala **MemPalace** (`uv tool install mempalace`) e **OpenSpace** (`uv tool install git+https://github.com/HKUDS/OpenSpace.git`); escreve `~/.claude/mcp.json` com ambos.
+5. Roda `doctor` no fim para confirmar tudo OK.
+
+**Reinicie o Claude Code** depois do setup para as skills serem carregadas.
+
 ---
 
-## Como divide responsabilidade
+## Criando um projeto novo
 
-Três camadas, separadas de propósito para que atualizações propaguem limpas.
+```bash
+cd ~/projects/meu-projeto-novo
+# Abra o Claude Code aqui e cole o conteúdo de:
+#   ~/harness-engineering/bootstrap/prompt.md
+# como primeira mensagem.
+```
 
-| Camada | Arquivo | Varia por | Sincronizado por `harness-sync.sh`? |
-| --- | --- | --- | --- |
-| Workflow universal | `AGENTS.md` | nada | sim |
-| Identificação | `.gsd/STACK.md` | projeto | **não** |
-| Convenções de stack | `.gsd/CONVENTIONS.md` | projeto | **não** |
-| Descrição do produto | `.gsd/SPEC.md` | projeto | **não** |
-| Plano | `.gsd/ROADMAP.md` | projeto | **não** |
-| Prompts de sessão | `.gsd/SESSION_START.md`, `.gsd/BOOTSTRAP.md`, `.gsd/bootstrap-prompt.md` | nada | sim |
+A entrevista de bootstrap:
+- Pergunta o modo (single-repo / umbrella / sub-repo).
+- Em projeto existente, analisa o código e pré-preenche o que conseguir inferir.
+- Pergunta lacunas em lote, marca `> [TBD: <pergunta>]` no que ainda não dá pra responder.
+- Copia os skeletons de [`templates/`](templates/) para `.gsd/` e `.harness/`:
 
-O script de sync copia só a camada universal. Arquivos específicos do projeto nunca são tocados depois de preenchidos.
+  ```
+  templates/SPEC.md             → .gsd/SPEC.md
+  templates/STACK.md            → .gsd/STACK.md
+  templates/ROADMAP.md          → .gsd/ROADMAP.md
+  templates/feature_list.json   → .harness/feature_list.json
+  templates/baseline.json       → .harness/baseline.json
+  ```
+- No fim, opcionalmente sincroniza ROADMAP → GitHub (Project, milestones, issues).
+
+> Note que **não existe mais `.gsd/CONVENTIONS.md`** na v2 — convenções de código vêm da skill `stack-<archetype>` que combina com a stack (`stack-react-vite-scss`, `stack-django-drf-jwt`, etc.). A entrevista identifica o archetype e registra em `STACK.md`.
 
 ---
 
-## Modos explicados
+## Migrando um projeto v1 → v2
 
-### single-repo
+Guia passo a passo: [`docs/harness-v2/migration.md`](docs/harness-v2/migration.md).
 
-Caso mais comum. Um repo Git, uma stack, um conjunto de arquivos de harness. Sessões começam dentro do repo com o harness completo carregado automaticamente.
+TL;DR: criar branch dedicada, salvar convenções customizadas como drawers no MemPalace, trocar AGENTS.md pela versão slim, atualizar STACK.md com o archetype, apagar 4 arquivos v1 redundantes, reiniciar Claude, smoke test, PR.
 
-### umbrella
+---
 
-Uma pasta de workspace (não é repo Git em si) que segura vários repos Git independentes servindo um produto. A raiz do workspace carrega:
+## O que tem no repo
 
-- `PRODUCT.md` — fonte única de verdade para visão do produto, problema, usuários, escopo. O `SPEC.md` de cada sub-repo referencia este arquivo em vez de duplicar.
-- `INTEGRATION.md` — contratos cross-repo: dono da API, tipos compartilhados, fluxo de auth, ordem de deploy.
+```
+harness-engineering/
+├── AGENTS.md                 # 42 linhas — aponta para skills (era 446 na v1)
+├── CLAUDE.md                 # @AGENTS.md
+├── skills/                   # skills carregadas via junction
+│   ├── harness-index/        # tabela "para fazer X, leia skill Y"
+│   ├── workflow-*/           # branching, commits, issues, prs, project-board
+│   ├── ratchet-feature-list/ # contrato dev↔QA
+│   ├── stack-*/              # archetypes (react-vite-scss, django-drf-jwt)
+│   ├── memory-palace/        # wings/rooms/drawers do MemPalace
+│   └── evolving-skills/      # FIX/DERIVED/CAPTURED do OpenSpace
+├── bootstrap/
+│   └── prompt.md             # bootstrap slim (137 linhas; era 219 na v1)
+├── templates/                # skeletons que projeto novo copia
+│   ├── SPEC.md  STACK.md  ROADMAP.md
+│   ├── feature_list.json  baseline.json
+├── scripts/
+│   ├── setup.{sh,ps1}        # setup global por máquina (v2)
+│   ├── doctor.{sh,ps1}       # validação do ambiente (v2)
+│   ├── check-harness.sh      # validador feature_list/baseline (v1+v2)
+│   ├── harness-init.sh       # bootstrap v1 (legado)
+│   └── harness-sync.sh       # sync v1 (legado)
+├── umbrella/                 # docs/templates do modo umbrella
+└── docs/harness-v2/          # arquitetura e guia de migração
+    ├── overview.md
+    └── migration.md
+```
 
-Um único GitHub Project (Projects v2) linkado a todos os repos é recomendado. O `AGENTS.md` umbrella documenta as regras cross-repo (issues âncora, nomes de branch combinando, ordem de merge).
+---
 
-### sub-repo
+## Modo de workspace
 
-Um repo Git que vive dentro de um workspace umbrella. Operado independentemente no dia a dia mas sabe que tem irmãos. O `SPEC.md` dele começa com uma linha tipo:
+Por padrão: **single-repo** — um repo Git, uma stack, skills carregadas globalmente. É o que cobre 99% dos casos (incluindo todos os usos solo).
 
-> Este repo entrega <fatia X> do produto definido em `../PRODUCT.md`.
-
-O bootstrap, quando rodado em modo sub-repo, lê `../PRODUCT.md` e `../INTEGRATION.md` antes de entrevistar, então o SPEC resultante mantém o foco na fatia deste repo.
+> **Modos avançados (umbrella / sub-repo).** Time que compartilha produto entre vários repos Git independentes e precisa de `PRODUCT.md`/`INTEGRATION.md` versionados na raiz do workspace. Para uso solo cross-projeto, **MemPalace cobre o papel** com busca semântica — basta wing por projeto. Detalhe em [`bootstrap/prompt.md`](bootstrap/prompt.md), seção "Modo avançado".
 
 ---
 
 ## Workflow dia a dia
 
-O harness espera uma disciplina que espelha um time pequeno:
+Skills cobrem o detalhe. Resumo:
 
-1. **GitHub Project board** — seis colunas (Backlog → Ready → Priority → In Progress → In Review → Done). O agente verifica se um project existe no início da sessão e cria se não.
-2. **Issues** — toda mudança começa como issue. O template de issue está em `.github/ISSUE_TEMPLATE/`.
-3. **Branches** — toda issue ganha sua branch (`feat/slug`, `fix/slug`, `chore/slug`). Sempre saída de `preview`, nunca de `main`.
-4. **Commits** — Conventional Commits, inglês, lowercase, modo imperativo, máx 72 chars.
-5. **Validação** — o comando de validação do projeto precisa passar antes de cada commit e antes de qualquer PR ser aprovado.
-6. **PRs** — de `feat/*` para `preview` para ir pra staging, depois `preview` para `main` para produção. Todo PR referencia sua issue com `Closes #N`.
-7. **Tracking de progresso** — no fechamento da sessão, o agente atualiza `.gsd/progress/<MID>-<SID>.md` com o build log e tarefas marcadas.
+| Disciplina | Skill |
+| --- | --- |
+| Branching (`feat/*` → `preview` → `main`) | `workflow-branching` |
+| Commits (Conventional Commits, inglês, ≤72 chars) | `workflow-commits` |
+| Issues (template, marcador `Task: <MID>-<SID>-<TID>`) | `workflow-issues` |
+| PRs (`Closes #N`, validação verde, base = `preview`) | `workflow-prs` |
+| Project board (6 colunas: Backlog→Done) | `workflow-project-board` |
+| Feature list e baseline (ratchet de qualidade) | `ratchet-feature-list` |
+| Memória cross-projeto (decisões, postmortems) | `memory-palace` |
+| Skills auto-evolutivas (curated × evolved, promoção) | `evolving-skills` |
 
-Os prompts de início e fechamento em `.gsd/SESSION_START.md` reforçam tudo isso sem o dev precisar lembrar.
-
----
-
-## Mantendo projetos atualizados
-
-Quando você melhorar uma regra universal no template (ex.: convenções de commit mais apertadas), propague para todo projeto que usa o harness:
-
-```bash
-cd ~/projects/my-project
-./scripts/harness-sync.sh
-```
-
-O script de sync detecta o modo do projeto (single-repo, umbrella ou sub-repo) a partir dos arquivos presentes e copia só os arquivos universais daquele modo. Seus `STACK.md`, `CONVENTIONS.md`, `SPEC.md`, `ROADMAP.md`, `PRODUCT.md`, `INTEGRATION.md` e `progress/` preenchidos nunca são tocados.
-
-### Auto-update do template em si
-
-Tanto `harness-init.sh` quanto `harness-sync.sh` rodam `git pull --ff-only` em `$HARNESS_TEMPLATE` antes de copiar, então você sempre pega os arquivos universais mais novos sem puxar manualmente. O pull é pulado (com warning, não erro) se:
-
-- o template tem mudanças locais não commitadas,
-- o template não tem remote `origin`,
-- `HARNESS_NO_PULL=1` está setado, ou
-- a máquina está offline / o fetch falha.
-
-Para desativar o auto-pull em uma execução:
-
-```bash
-HARNESS_NO_PULL=1 ./scripts/harness-sync.sh
-```
-
-Para puxar manualmente a qualquer hora:
-
-```bash
-git -C "$HARNESS_TEMPLATE" pull
-```
+Invoque `harness-index` no início da sessão quando estiver em dúvida do roteamento.
 
 ---
 
-## Customizando por stack
+## Conceitos que valem entender
 
-O skeleton do `CONVENTIONS.md` no template descreve um projeto Next.js + TypeScript + SCSS Modules + Vitest. Quando você faz bootstrap de um projeto com stack diferente, o agente adapta: remove seções que não se aplicam (ex.: SCSS num backend) e adiciona as que se aplicam (ex.: padrões de middleware para Express, regras de migration para um app Rails).
-
-Se você se pegar repetindo as mesmas convenções entre vários projetos da mesma stack (ex.: várias APIs Express), o passo natural é forkar este template numa variante específica da stack onde `CONVENTIONS.md` já vem preenchido. Mas não antecipe — comece genérico, especialize quando o padrão se repetir.
-
----
-
-## Conceitos que vale entender
-
-- **Universal vs específico do projeto**: o harness só funciona se você mantiver a linha limpa. Se uma regra vale para um projeto mas não todos, vai no `CONVENTIONS.md`, não no `AGENTS.md`.
-- **Vagueza é o inimigo**: a entrevista de bootstrap faz pushback em respostas vagas ("uma ferramenta pra rastrear coisas") porque specs vagos geram código vago.
-- **TBD é permitido**: melhor marcar algo desconhecido do que inventar resposta errada.
-- **Fricção é o valor**: se as perguntas parecem chatas, o harness está fazendo o trabalho. Specs que passam sem resistência geralmente estão errados.
+- **Skills auto-carregadas vs slash commands.** As skills do harness são auto-descobertas pelo Claude Code (frontmatter sempre visível, body sob demanda). Não são slash commands — Claude invoca quando o `description` bate com a tarefa.
+- **Curated × evolved.** Skills curadas vivem no repo (versionadas, revisadas em PR). Skills evoluídas pelo OpenSpace vivem em `~/.claude/skills/captured/` (untracked). Promoção de evolved para curated é deliberada, via PR — não default. Detalhes em `evolving-skills`.
+- **Decisão do projeto sempre ganha da skill genérica.** A skill `stack-*` é guia padrão. Se o projeto explicitamente decidiu diferente, registre como drawer no MemPalace (room `decisions`); a regra universal "search antes de decidir" no AGENTS.md faz o agente encontrar a decisão e respeitá-la.
+- **Vagueza é o inimigo.** A entrevista de bootstrap faz pushback em respostas vagas porque specs vagos geram código vago.
+- **TBD é permitido.** Melhor marcar algo desconhecido do que inventar resposta errada.
 
 ---
 
 ## Troubleshooting
 
-**O agente não está seguindo as regras de `AGENTS.md`.**
-Confirme que `CLAUDE.md` existe no root do projeto e contém `@AGENTS.md`. No claude.ai, cole o prompt de início de sessão de `.gsd/SESSION_START.md` para forçar o agente a ler tudo.
+**As skills do harness não aparecem na lista de skills disponíveis.**
+Claude Code não rescaneia mid-session. Saia e abra de novo (ou reinicie a IDE). Confirme com `./scripts/doctor.sh` que `~/.claude/skills/harness/` existe.
 
-**`harness-sync.sh` sobrescreveu meu `STACK.md`.**
-Não deveria — o script nunca lista arquivos específicos do projeto. Se aconteceu, abre uma issue com a versão do script que você rodou.
+**`doctor` reclama de RTK / MemPalace / OpenSpace.**
+Rode `./scripts/setup.sh` (idempotente). Para reinstalar uma só: `uv tool upgrade mempalace` / `uv tool upgrade openspace` / `brew upgrade rtk`.
 
-**A entrevista de bootstrap fica perguntando a mesma coisa.**
-É por design quando uma resposta está vaga demais. Seja mais específico.
+**Migrar um projeto v1 quebrou alguma decisão customizada.**
+Você pulou o passo 2 do guia (salvar drawer no MemPalace antes de apagar `CONVENTIONS.md`). Rollback: `git checkout preview && git branch -D chore/harness-v2-migration`. Refaça lendo o guia com calma.
 
-**Minha stack é exótica (Elixir, Rust, Zig, etc.).**
-O prompt de bootstrap é agnóstico de stack nas fases universais. A Fase 3 (Convenções) é onde adapta — responda com base nos idiomas da sua stack e o agente escreve `CONVENTIONS.md` combinando.
+**Stack inusual sem archetype matching (Rust+Axum, Go+Echo, Elixir+Phoenix...).**
+OK. Em `.gsd/STACK.md`, deixe "Archetype skill correspondente: nenhum ainda — convenções emergem via OpenSpace (skill `evolving-skills`)". As regras universais (workflow, ratchet, memória) continuam funcionando agnósticas de stack.
+
+**Quero criar uma skill nova específica do meu projeto.**
+Para um padrão recorrente que vale só num projeto, deixe o OpenSpace capturar via uso (CAPTURED). Quando provar valor, promova manualmente para `skills/` aqui no repo do harness via PR (ver `evolving-skills`, seção "Promovendo CAPTURED → curated").

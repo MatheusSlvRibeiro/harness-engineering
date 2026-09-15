@@ -9,7 +9,9 @@ Dois arquivos vivem aqui depois que um projeto é inicializado:
 
 ---
 
-**Precisa de `jq`** para validar. Veja o `README.md` raiz → Requisitos para instruções de instalação. `harness-init.sh` oferece instalar automaticamente; o CI instala no runner.
+**Precisa de `jq`** para validar. Veja o `README.md` raiz → Pré-requisitos para instruções de instalação. `setup.sh` aponta como instalar; o CI instala no runner automaticamente.
+
+> Schema preservado em v2. Skill `ratchet-feature-list` (em `~/.claude/skills/harness/`) cobre as regras de uso e atualização desses dois JSONs.
 
 ---
 
@@ -25,17 +27,16 @@ Esta é uma versão leve do padrão de ryanhaqueIT/harness-engineering-template 
 
 ## Bootstrapping em projeto novo
 
-Depois que `harness-sync.sh` copia esta pasta, faça uma vez:
+O bootstrap (`bootstrap/prompt.md` do harness v2) copia os skeletons da pasta `templates/` para os arquivos reais:
 
 ```bash
-cp .harness/feature_list.example.json .harness/feature_list.json
-cp .harness/baseline.example.json     .harness/baseline.json
+cp templates/feature_list.json .harness/feature_list.json
+cp templates/baseline.json     .harness/baseline.json
 ```
 
-Então preencha `feature_list.json` a partir do `SPEC.md` e `ROADMAP.md` (os critérios de sucesso de cada milestone viram uma ou mais features), e popule `baseline.json` com os números atuais depois de rodar o comando de validação pela primeira vez.
+> Os `*.example.json` nesta pasta são preservados como compatibilidade com projetos ainda em v1 (que dependiam do `harness-sync.sh` copiando daqui).
 
-Os arquivos `*.example.json` são parte do template e são **sobrescritos por `scripts/harness-sync.sh`**.
-Os `feature_list.json` e `baseline.json` reais são específicos do projeto e **nunca tocados pelo sync**.
+Depois preencha `feature_list.json` a partir do `SPEC.md` e `ROADMAP.md` (os critérios de sucesso de cada milestone viram uma ou mais features), e popule `baseline.json` com os números atuais depois de rodar o comando de validação pela primeira vez.
 
 ---
 

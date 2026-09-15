@@ -80,6 +80,26 @@ if (Test-Path $mcpFile) {
 }
 
 Write-Host ''
+Write-Host 'MemPalace auto-save hooks:' -ForegroundColor Yellow
+$saveHook = Join-Path $env:USERPROFILE '.claude\hooks\mempalace\mempal_save_hook.sh'
+$precompactHook = Join-Path $env:USERPROFILE '.claude\hooks\mempalace\mempal_precompact_hook.sh'
+$settingsFile = Join-Path $env:USERPROFILE '.claude\settings.json'
+if ((Test-Path $saveHook) -and (Test-Path $precompactHook)) {
+    Write-Host '  [OK]    scripts em ~/.claude/hooks/mempalace/' -ForegroundColor Green
+} else {
+    Write-Host '  [FALTA] scripts de hook em ~/.claude/hooks/mempalace/' -ForegroundColor Red
+    Write-Host '          Rode: .\scripts\setup.ps1' -ForegroundColor Yellow
+    $anyMissing = $true
+}
+if ((Test-Path $settingsFile) -and (Select-String -Path $settingsFile -Pattern 'mempal_save_hook' -Quiet)) {
+    Write-Host '  [OK]    Stop + PreCompact wired em ~/.claude/settings.json' -ForegroundColor Green
+} else {
+    Write-Host '  [AVISO] hooks nao estao wired em ~/.claude/settings.json' -ForegroundColor Yellow
+    Write-Host '          Sessions nao vao auto-indexar no MemPalace.' -ForegroundColor Yellow
+    Write-Host '          Rode: .\scripts\setup.ps1 (ou /update-config no Claude Code).' -ForegroundColor Yellow
+}
+
+Write-Host ''
 if ($anyMissing) {
     Write-Host 'Doctor: itens faltando. Rode .\scripts\setup.ps1 para corrigir.' -ForegroundColor Yellow
     exit 1

@@ -74,6 +74,26 @@ else
 fi
 
 echo ""
+echo "MemPalace auto-save hooks:"
+save_hook="$HOME/.claude/hooks/mempalace/mempal_save_hook.sh"
+precompact_hook="$HOME/.claude/hooks/mempalace/mempal_precompact_hook.sh"
+settings_file="$HOME/.claude/settings.json"
+if [[ -x "$save_hook" && -x "$precompact_hook" ]]; then
+    echo "  [OK]    scripts em ~/.claude/hooks/mempalace/"
+else
+    echo "  [FALTA] scripts de hook em ~/.claude/hooks/mempalace/"
+    echo "          Rode: ./scripts/setup.sh"
+    any_missing=1
+fi
+if [[ -f "$settings_file" ]] && grep -q "mempal_save_hook" "$settings_file" 2>/dev/null; then
+    echo "  [OK]    Stop + PreCompact wired em ~/.claude/settings.json"
+else
+    echo "  [AVISO] hooks não estão wired em ~/.claude/settings.json"
+    echo "          Sessions não vão auto-indexar no MemPalace."
+    echo "          Rode: ./scripts/setup.sh (ou /update-config no Claude Code)."
+fi
+
+echo ""
 if [[ "$any_missing" -eq 1 ]]; then
     echo "Doctor: itens faltando. Rode ./scripts/setup.sh para corrigir."
     exit 1

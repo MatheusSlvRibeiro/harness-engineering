@@ -2,7 +2,7 @@
 
 Este arquivo é carregado quando uma sessão do agente começa na **raiz do workspace** de um projeto multi-repo (onde dois ou mais repos Git independentes vivem lado a lado como subpastas).
 
-É uma camada meta fina. As regras reais de cada repo vivem dentro do `AGENTS.md`, `STACK.md`, `CONVENTIONS.md`, etc. desse repo.
+É uma camada meta fina. As regras reais de cada repo vivem dentro do `AGENTS.md` (slim, ~40 linhas) e `.gsd/STACK.md` desse repo, mais as **skills do harness** carregadas globalmente via `~/.claude/skills/harness/`.
 
 ---
 
@@ -11,7 +11,7 @@ Este arquivo é carregado quando uma sessão do agente começa na **raiz do work
 Este workspace contém **múltiplos repositórios Git independentes** que servem ao mesmo produto. Cada repo:
 
 - Tem seu próprio remote, branches, GitHub Project, comando de validação, deploy.
-- Tem seu harness completo (`AGENTS.md`, `.gsd/STACK.md`, `.gsd/CONVENTIONS.md`, `.gsd/SPEC.md`, `.gsd/ROADMAP.md`).
+- Tem `AGENTS.md` slim + `.gsd/STACK.md` + `.gsd/SPEC.md` + `.gsd/ROADMAP.md`. As convenções de código vêm da skill `stack-<archetype>` apontada no STACK.md — não há mais `CONVENTIONS.md` por sub-repo na v2.
 - É operado **independentemente** no dia a dia.
 
 A raiz do workspace adiciona **contexto compartilhado** que é importante demais para duplicar:
@@ -39,7 +39,7 @@ Modo single-repo é o padrão — use sempre que puder. Modo umbrella custa mais
 1. Este arquivo (`AGENTS.md`)
 2. `PRODUCT.md`
 3. `INTEGRATION.md`
-4. Para cada sub-repo que você for tocar: `AGENTS.md`, `.gsd/STACK.md`, `.gsd/CONVENTIONS.md` desse repo
+4. Para cada sub-repo que você for tocar: `AGENTS.md` (slim) e `.gsd/STACK.md` desse repo — a skill `stack-<archetype>` correspondente é carregada automaticamente pelo Claude
 
 **Não** pré-carregue todos os sub-repos. Só os relevantes para a tarefa atual.
 
@@ -100,7 +100,9 @@ Se existirem vários boards (um por repo), consolide em um só antes de qualquer
 | Contratos de API, tipos compartilhados, ordem de deploy | `INTEGRATION.md` (umbrella) |
 | Fatia deste repo no produto | `<repo>/.gsd/SPEC.md` |
 | Milestones e sprints deste repo | `<repo>/.gsd/ROADMAP.md` |
-| Stack e convenções deste repo | `<repo>/.gsd/STACK.md` + `<repo>/.gsd/CONVENTIONS.md` |
-| Regras universais de workflow (branches, commits) | `<repo>/AGENTS.md` |
+| Stack deste repo + archetype skill correspondente | `<repo>/.gsd/STACK.md` |
+| Convenções de código deste stack | skill `stack-<archetype>` (carregada via `~/.claude/skills/harness/`) |
+| Regras universais de workflow (branches, commits, PRs, ratchet) | skills `workflow-*` e `ratchet-feature-list` (também via `~/.claude/skills/harness/`) |
+| Decisões customizadas que contradizem a skill genérica | drawers no MemPalace, wing do projeto, room `decisions` |
 
 Quando o `SPEC.md` de um sub-repo for duplicar algo do `PRODUCT.md`, ele deve referenciar: "Este repo entrega <fatia X> do produto definido em `../PRODUCT.md`."
