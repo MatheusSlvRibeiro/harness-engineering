@@ -1,0 +1,29 @@
+# Python (MCP tooling: mempalace, openspace)
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Node (claude CLI instalado local, se aplicável)
+node_modules/
+
+# Env / secrets
+.env
+.env.local
+*.pem
+*.key
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Logs
+*.log
+
+# Contratos preenchidos localmente durante bootstrap/testes deste próprio repo
+# (o template distribui só os .example.json — instâncias reais não devem ser versionadas aqui)
+.harness/feature_list.json
+.harness/baseline.json
