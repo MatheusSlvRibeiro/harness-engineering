@@ -21,6 +21,8 @@ Este skill **não redefine convenções de código** — elas moram nos skills a
 | Backend | Django 5 + DRF + PostgreSQL | `backend/django-drf` |
 | Autenticação | JWT via cookie httpOnly | `backend/jwt-cookie-auth` |
 | Frontend ↔ cookie auth | fetch/axios com credentials + header CSRF | [reference/frontend-auth.md](reference/frontend-auth.md) |
+| Lint/format/hooks (frontend) | ESLint + Prettier + Husky + lint-staged + commitlint | `eslint-prettier-husky` |
+| Lint/format/hooks (backend) | Ruff + pre-commit framework | `ruff-precommit` |
 
 ## Por que esta combinação
 
@@ -42,6 +44,15 @@ Este skill **não redefine convenções de código** — elas moram nos skills a
 - Todo model, queryset e endpoint que retorna dado de tenant **filtra por tenant/organização** — não
   existe endpoint "global" que um usuário de um tenant possa usar pra enxergar dado de outro. Isso é
   além do filtro por usuário já exigido em `backend/django-drf`.
+
+## CI é obrigatório, não opcional
+
+Todo projeto deste archetype tem `.github/workflows/ci.yml` (separado do `harness-gate.yml` herdado
+do template) rodando, em todo PR: lint + format check + typecheck do frontend (`eslint-prettier-husky`)
+e lint + format check do backend (`ruff-precommit`), além dos testes de cada lado. Hook local
+(Husky/pre-commit) é conveniência do dia a dia; CI é o gate que ninguém consegue pular com
+`--no-verify`. Projeto sem esse workflow não tem as regras de `frontend/*`/`backend/*` realmente
+aplicadas — documentação sem enforcement é a primeira coisa que quebra sob prazo apertado.
 
 ## Skills relacionadas
 

@@ -50,6 +50,8 @@ A separação impede que o QA seja "convencido" pela sessão dev — ele só che
 | Código backend — Django, DRF (model, serializer, view) | `backend/django-drf` |
 | Código backend — autenticação JWT via cookie httpOnly | `backend/jwt-cookie-auth` |
 | Código backend — Node.js, Fastify, zod | `backend/fastify` |
+| Lint/format/hooks — frontend (ESLint, Prettier, Husky) | `eslint-prettier-husky` |
+| Lint/format/hooks — backend Python (Ruff, pre-commit) | `ruff-precommit` |
 | Memória cross-projeto (wings/rooms/drawers, MemPalace) | `memory-palace` |
 | Rituais de início/fim de sessão (wake-up, search, drawer recap) | `session-rituals` |
 | Skills auto-evolutivas (FIX/DERIVED/CAPTURED, OpenSpace) | `evolving-skills` |
@@ -62,6 +64,9 @@ archetype não as duplica.
 
 | Tipo de projeto | Invoque | Combina |
 | --- | --- | --- |
-| SaaS multi-tenant (React + Django + Postgres) | `project-multitenant` | `frontend/react` + `frontend/scss-bem` + `frontend/tanstack-table` + `backend/django-drf` + `backend/jwt-cookie-auth` |
-| SPA leve (React + Tailwind + API mínima) | `project-spa` | `frontend/react` + `frontend/tailwind` + `backend/fastify` |
+| SaaS multi-tenant (React + Django + Postgres) | `project-multitenant` | `frontend/react` + `frontend/scss-bem` + `frontend/tanstack-table` + `backend/django-drf` + `backend/jwt-cookie-auth` + `eslint-prettier-husky` + `ruff-precommit` |
+| SPA leve (React + Tailwind + API mínima) | `project-spa` | `frontend/react` + `frontend/tailwind` + `backend/fastify` + `eslint-prettier-husky` |
 | Bots / workers assíncronos | ainda não definido | — |
+
+Todo archetype exige CI (`.github/workflows/ci.yml`) rodando lint/format/typecheck/testes em todo
+PR — ver a seção "CI é obrigatório" dentro de cada `project-*`.

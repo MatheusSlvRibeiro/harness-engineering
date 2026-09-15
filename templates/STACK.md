@@ -3,7 +3,8 @@
 Identificação do projeto: qual stack este código usa, como validar, que ambiente ele precisa.
 
 Este arquivo é **preenchido pela entrevista de bootstrap** e **nunca é sobrescrito por scripts de sincronia**.
-As convenções de código (folder layout, componentes, testes, schemas) **não** vão aqui — vêm da skill `stack-<archetype>` que combina com esta stack (ver `skills/harness-index`).
+As convenções de código (folder layout, componentes, testes, schemas) **não** vão aqui — vêm dos skills
+atômicos `frontend/*`/`backend/*` combinados pelo archetype de projeto (ver `skills/harness-index`).
 
 ---
 
@@ -41,6 +42,11 @@ O que ele roda, em sequência:
 
 **Uma tarefa só está completa quando este comando passa com zero erros.**
 Nunca considere uma tarefa pronta com base apenas no seu próprio julgamento.
+
+**Este mesmo comando roda em CI** (`.github/workflows/ci.yml`, separado do `harness-gate.yml`
+herdado do template) em todo PR. Um projeto sem esse workflow não tem esta regra realmente aplicada
+— ela vira "combinado de boca", que quebra na primeira pressa. Ver `frontend/eslint-prettier-husky`
+ou `backend/ruff-precommit` para o wiring de lint/format/test em hook local + CI.
 
 ---
 

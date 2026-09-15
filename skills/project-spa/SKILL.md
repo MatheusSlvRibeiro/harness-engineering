@@ -21,6 +21,7 @@ quê*.
 | Testes (frontend) | Vitest + Testing Library | `frontend/vitest-testing-library` |
 | Backend | Node.js + Fastify + TypeScript | `backend/fastify` |
 | Validação de API | zod (mesma lib do frontend, mesmo mental model) | `backend/fastify` → [reference/routes-and-validation.md](../backend/fastify/reference/routes-and-validation.md) |
+| Lint/format/hooks | ESLint + Prettier + Husky + lint-staged + commitlint (front e back, mesma linguagem) | `eslint-prettier-husky` |
 
 ## Por que esta combinação
 
@@ -36,6 +37,15 @@ quê*.
   usuário autenticado por padrão — se o projeto precisar de login, isso é sinal de que o escopo
   cresceu; reavalie se `project-multitenant` não é o archetype certo antes de empilhar auth em cima do
   Fastify.
+
+## CI é obrigatório, não opcional
+
+Todo projeto deste archetype tem `.github/workflows/ci.yml` (separado do `harness-gate.yml` herdado
+do template) rodando, em todo PR: lint + format check + typecheck de frontend e backend
+(`eslint-prettier-husky` cobre os dois, já que ambos são TypeScript), além dos testes de cada lado.
+Hook local (Husky) é conveniência do dia a dia; CI é o gate que ninguém consegue pular com
+`--no-verify`. Projeto sem esse workflow não tem as regras de `frontend/*`/`backend/*` realmente
+aplicadas — documentação sem enforcement é a primeira coisa que quebra sob prazo apertado.
 
 ## Quando este archetype NÃO é o certo
 
