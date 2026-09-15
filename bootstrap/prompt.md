@@ -17,35 +17,18 @@ Pré-requisito: as skills do harness já estão carregadas (junction `~/.claude/
 - Pushback em resposta vaga ("uma ferramenta pra rastrear coisas"): peça especificidade.
 - Documentação em **pt-BR**. Identificadores técnicos (`feat`, `fix`, slugs de branch/skill) em **inglês**.
 
-## PERGUNTA ZERO-A — modo de workspace
-
-Pergunte:
-
-> "Qual é o modo deste diretório?
-> 1) single-repo — um repo Git, projeto standalone
-> 2) umbrella    — workspace raiz contendo múltiplos repos Git como subpastas
-> 3) sub-repo    — um dos repos Git dentro de um workspace umbrella"
-
-Arquivos a preencher por modo:
-
-- **single-repo** → `.gsd/SPEC.md`, `.gsd/STACK.md`, `.gsd/ROADMAP.md`, `.harness/feature_list.json`, `.harness/baseline.json`
-- **umbrella** → `PRODUCT.md`, `INTEGRATION.md` (sem .gsd/ no nível umbrella)
-- **sub-repo** → mesmos arquivos do single-repo, mas LEIA `../PRODUCT.md` e `../INTEGRATION.md` primeiro. O SPEC deste repo é uma fatia do produto.
-
-> **Nota v2:** `.gsd/CONVENTIONS.md` não existe mais. Convenções de código vêm da skill `stack-<archetype>` (`stack-react-vite-scss`, `stack-django-drf-jwt`). A entrevista identifica qual archetype combina com o projeto e registra o nome em STACK.md — Claude carrega a skill correspondente.
-
-## PERGUNTA ZERO-B — estado do código
+## PERGUNTA ZERO — estado do código
 
 > "Este é um projeto NOVO (sem código ainda) ou EXISTENTE (código já existe, total ou parcialmente)?"
 
-Se EXISTENTE → rode a FASE 0 antes. Caso contrário, pule para as fases de entrevista.
+Se EXISTENTE → rode a FASE 0 antes. Caso contrário, pule para a entrevista.
+
+> **Modo padrão é single-repo.** Se este projeto é parte de um workspace umbrella (múltiplos repos compartilhando um produto, com `PRODUCT.md`/`INTEGRATION.md` versionados na raiz), pule para a seção **"Modo avançado: umbrella e sub-repo"** no fim deste prompt. Casos de uso solo quase sempre são single-repo.
 
 ## FASE 0 — Análise (só para projetos existentes)
 
-Para single/sub-repo: analise o diretório atual.
-Para umbrella: analise brevemente cada sub-repo.
+Analise o diretório atual nesta ordem:
 
-Examine nesta ordem:
 a) Manifestos (`package.json`, `Cargo.toml`, `go.mod`, `pyproject.toml`, `requirements.txt`)
 b) Estrutura de pastas
 c) `README.md` e qualquer `docs/`
@@ -53,11 +36,9 @@ d) Histórico recente de commits (últimos 30–50)
 e) Issues e PRs abertas se acessíveis
 f) Arquivos de entrada (`page`, `route`, `index`, `main`)
 
-Depois da análise, mostre um SUMÁRIO CURTO (5–10 linhas) e espere confirmação:
-- single/sub-repo: stack identificada, propósito aparente, maturidade, o que está obscuro
-- umbrella: uma linha por sub-repo + padrões de integração
+Depois da análise, mostre um SUMÁRIO CURTO (5–10 linhas) com stack identificada, propósito aparente, maturidade, o que está obscuro. Espere confirmação.
 
-## ENTREVISTA — modo single-repo
+## Entrevista (single-repo)
 
 **Fluxo: rascunho primeiro, perguntas depois.**
 
@@ -96,23 +77,7 @@ Para cada arquivo, pergunte os TBDs em UM ÚNICO bloco. Depois edite o arquivo s
 
 Liste os TBDs remanescentes (`grep -n "TBD:" .gsd/*.md`). Pergunte se quer responder agora ou revisitar depois.
 
-## ENTREVISTA — modo umbrella
-
-Mesma estrutura, mas para `PRODUCT.md` e `INTEGRATION.md`. Cobertura: produto cruzando repos, problema/solução no nível produto, lista de repos com uma linha cada, integração (contratos, donos, consumidores, sincronia de tipos, auth, env vars compartilhadas, ordem de deploy).
-
-NÃO gere SPEC/STACK/ROADMAP por sub-repo aqui — esses são preenchidos depois rodando este bootstrap em cada sub-repo.
-
-## ENTREVISTA — modo sub-repo
-
-LEIA `../PRODUCT.md` e `../INTEGRATION.md` primeiro. Se não existirem, pare e peça pra rodar bootstrap umbrella primeiro.
-
-Então rode a entrevista single-repo com ajustes:
-
-- SPEC.md começa com: "Este repo entrega <fatia X> do produto definido em `../PRODUCT.md`."
-- Capacidades e "fora de escopo" são DESTE repo, não do produto inteiro.
-- Cite `../INTEGRATION.md` quando contratos com repos irmãos aparecerem.
-
-## SINCRONIA FINAL — single-repo e sub-repo
+## Sincronia final — single-repo
 
 Depois que `.gsd/ROADMAP.md` está confirmado, crie no GitHub:
 
@@ -124,8 +89,6 @@ Pré-checagem: `gh auth status` e `gh project list` devem responder. Se faltar s
 
 Antes de criar QUALQUER coisa, mostre o resumo (N milestones, M issues) e espere "ok" explícito. Depois rode tudo e mostre o resultado (Project URL, milestones criadas, issues criadas com números).
 
-Em modo **umbrella**, NÃO crie issues por task — cada sub-repo cuida do seu próprio ROADMAP.
-
 ## Skills úteis durante o bootstrap
 
 - `harness-index` — quando ficar em dúvida de qual skill consultar
@@ -134,4 +97,37 @@ Em modo **umbrella**, NÃO crie issues por task — cada sub-repo cuida do seu p
 - `ratchet-feature-list` — schema e regras de `.harness/*.json`
 - `memory-palace` — pra propor uma drawer registrando decisões fundadoras desta sessão (problema, vision, escolhas de stack)
 
-Comece pela PERGUNTA ZERO-A.
+Comece pela PERGUNTA ZERO.
+
+---
+
+## Modo avançado: umbrella e sub-repo
+
+> **Quando usar.** Time (não solo) que compartilha um produto entre vários repos Git independentes (ex.: `backend/` + `frontend/` + `mobile/`) e precisa de uma fonte única de verdade versionada para visão de produto e contratos de integração. Para uso solo, **MemPalace cobre o papel** dos arquivos `PRODUCT.md`/`INTEGRATION.md` com busca semântica — basta usar wings por projeto.
+
+Antes de seguir abaixo, confirme: "Este projeto realmente compartilha um produto com outros repos Git independentes, e múltiplas pessoas precisam ver o mesmo PRODUCT.md/INTEGRATION.md versionados? Ou MemPalace resolveria?"
+
+Se MemPalace resolve, volte ao fluxo single-repo. Caso contrário, siga.
+
+### Modo umbrella
+
+Workspace raiz contendo múltiplos repos Git como subpastas. Você preenche dois arquivos no raiz:
+
+- **PRODUCT.md** — Produto cruzando repos (1 frase), público-alvo, problema, 3–5 capacidades do produto inteiro, fora de escopo no nível produto, critérios de sucesso, lista de repos (uma linha cada descrevendo o que entregam), restrições cross-repo.
+- **INTEGRATION.md** — Para cada par de repos que se falam: dono do contrato, consumidores, sincronia (manual / OpenAPI codegen / pacote compartilhado); tipos/schemas compartilhados; fluxo de auth (emissor, formato, rotação); env vars cross-repo; ordem de deploy.
+
+NÃO gere SPEC/STACK/ROADMAP por sub-repo no umbrella — isso roda dentro de cada sub-repo separadamente.
+
+### Modo sub-repo
+
+Repo Git que vive dentro de um workspace umbrella. LEIA `../PRODUCT.md` e `../INTEGRATION.md` primeiro. Se não existirem, pare e peça pra rodar bootstrap umbrella primeiro.
+
+Então rode a entrevista single-repo com ajustes:
+
+- SPEC.md começa com: "Este repo entrega <fatia X> do produto definido em `../PRODUCT.md`."
+- Capacidades e "fora de escopo" são DESTE repo, não do produto inteiro.
+- Cite `../INTEGRATION.md` quando contratos com repos irmãos aparecerem.
+
+### Sincronia final em umbrella
+
+Em modo umbrella **NÃO crie issues por task** — cada sub-repo cuida do seu próprio ROADMAP. No nível umbrella, só crie o Project compartilhado (se for ter um único board cross-repo) e nada mais.

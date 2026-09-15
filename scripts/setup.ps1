@@ -119,6 +119,66 @@ if (-not $SkipMcp) {
         Write-Host '     instalado.' -ForegroundColor Green
     }
 
+    # Auto-save hooks (Claude Code Stop + PreCompact).
+    # Os scripts sao bash; em Windows precisam de WSL/Git Bash no PATH.
+    $hooksDir = Join-Path $claudeDir 'hooks\mempalace'
+    if (-not (Test-Path $hooksDir)) {
+        New-Item -ItemType Directory -Path $hooksDir -Force | Out-Null
+    }
+    $saveHook = Join-Path $hooksDir 'mempal_save_hook.sh'
+    $precompactHook = Join-Path $hooksDir 'mempal_precompact_hook.sh'
+    $hooksBase = 'https://raw.githubusercontent.com/MemPalace/mempalace/master/hooks'
+    foreach ($h in @('mempal_save_hook.sh', 'mempal_precompact_hook.sh')) {
+        $target = Join-Path $hooksDir $h
+        if (-not (Test-Path $target) -or $Force) {
+            try {
+                Invoke-WebRequest -Uri "$hooksBase/$h" -OutFile $target -UseBasicParsing -ErrorAction Stop
+                Write-Host "     hook baixado: $target" -ForegroundColor Green
+            } catch {
+                Write-Host "     Falha ao baixar $h. Baixe manualmente de $hooksBase/$h" -ForegroundColor Yellow
+            }
+        }
+    }
+
+    # Wire hooks em ~/.claude/settings.json se ainda nao estiver.
+    # Aviso: os hooks sao bash; rode Claude Code sob WSL/Git Bash para os hooks executarem.
+    $settingsFile = Join-Path $claudeDir 'settings.json'
+    if (-not (Test-Path $settingsFile)) {
+        $saveHookJson = $saveHook -replace '\\','\\\\'
+        $precompactHookJson = $precompactHook -replace '\\','\\\\'
+        $settingsJson = @"
+{
+  "hooks": {
+    "Stop": [{
+      "matcher": "*",
+      "hooks": [{
+        "type": "command",
+        "command": "$saveHookJson",
+        "timeout": 30
+      }]
+    }],
+    "PreCompact": [{
+      "hooks": [{
+        "type": "command",
+        "command": "$precompactHookJson",
+        "timeout": 30
+      }]
+    }]
+  }
+}
+"@
+        $settingsJson | Out-File -FilePath $settingsFile -Encoding utf8
+        Write-Host "     auto-save wired em $settingsFile (arquivo criado)." -ForegroundColor Green
+        Write-Host "     Aviso: hooks sao bash. No Windows nativo precisa de WSL/Git Bash no PATH." -ForegroundColor Gray
+    } elseif (Select-String -Path $settingsFile -Pattern 'mempal_save_hook' -Quiet) {
+        Write-Host "     auto-save ja configurado em $settingsFile." -ForegroundColor Green
+    } else {
+        Write-Host "     $settingsFile ja existe — nao vou sobrescrever." -ForegroundColor Yellow
+        Write-Host "     Adicione manualmente (ou rode /update-config no Claude Code):" -ForegroundColor Yellow
+        Write-Host "       Stop hook    -> $saveHook" -ForegroundColor Yellow
+        Write-Host "       PreCompact   -> $precompactHook" -ForegroundColor Yellow
+    }
+
     Write-Host '  -> openspace' -ForegroundColor Cyan
     if (Get-Command openspace-mcp -ErrorAction SilentlyContinue) {
         Write-Host '     openspace-mcp ja instalado.' -ForegroundColor Green

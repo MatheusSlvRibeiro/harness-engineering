@@ -199,9 +199,11 @@ Monorepo fullstack ou repo com frontend+backend. Liste vários em STACK.md:
 
 Claude carrega ambas as skills — descrições delas têm escopo claro (frontend vs backend) e o agente escolhe na hora de aplicar.
 
-### Workspace umbrella
+### Workspace umbrella (modo avançado, raro em uso solo)
 
-Cada sub-repo migra **separadamente** (passos 1–10 acima dentro de cada um). O umbrella em si (que só tem `PRODUCT.md` e `INTEGRATION.md`) não tem `.gsd/` por convenção v2; se você criou `PRODUCT.md`/`INTEGRATION.md` na v1 no nível umbrella, mantenha como está — schemas não mudaram.
+Para times que mantêm `PRODUCT.md`/`INTEGRATION.md` versionados no raiz do workspace: cada sub-repo migra **separadamente** (passos 1–10 acima dentro de cada um). O umbrella em si não tem `.gsd/` por convenção v2; se você criou `PRODUCT.md`/`INTEGRATION.md` na v1 no nível umbrella, mantenha como está — schemas não mudaram.
+
+> Para uso solo cross-projeto, considere abandonar umbrella e usar **MemPalace** com wing por projeto + wing extra para "produto" cruzando projetos. Cobre o papel de PRODUCT/INTEGRATION com busca semântica, sem precisar de arquivos versionados.
 
 ### `.gsd/progress/` enorme
 
